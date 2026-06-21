@@ -40,12 +40,15 @@ const register = async ({ fullName, email, password }) => {
   const userObj = user.toObject();
   delete userObj.password;
   delete userObj.verificationToken;
+
+  return userObj
 };
 
+
 const login = async ({ email, password }) => {
-  const user = await user.findOne({ email }).select("+password");
+  const user = await User.findOne({ email }).select("+password");
   if (!user) {
-    throw ApiError.unauthorized("User Does not Exist");
+    throw ApiError.unauthorized("Invalid Email or Password");
   }
 
   const verifyPassword = await user.comparePassword(password);
@@ -63,9 +66,9 @@ const login = async ({ email, password }) => {
   const accessToken = generateAccessToken({ id: user._id });
 
   user.refreshToken = hashToken(refreshToken);
-  await user.save({ validationBefore: true });
+  await user.save({ validationBefore: false });
 
-  const userObj = User.toObject();
+  const userObj = user.toObject();
   delete userObj.password;
   delete userObj.refreshToken;
 
