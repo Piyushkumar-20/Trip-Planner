@@ -9,7 +9,6 @@ import {
 } from "../../common/utils/jwt.utils.js";
 
 import {
-  sendResetPasswordEmail,
   sendVerificationEmail,
 } from "../../common/config/email.js";
 

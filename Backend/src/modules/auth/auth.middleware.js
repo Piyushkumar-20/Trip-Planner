@@ -1,6 +1,6 @@
 import ApiError from "../../common/utils/api-error.js";
 import User from "../users/user.model.js";
-import verifyAccessToken from "../../common/utils/jwt.utils.js";
+import {verifyAccessToken} from "../../common/utils/jwt.utils.js";
 const authenticate = async (req, res, next) => {
   let token;
   if (req.headers.authorization?.startsWith("Bearer")) {
@@ -25,3 +25,5 @@ const authenticate = async (req, res, next) => {
 
   next();
 };
+
+export default authenticate

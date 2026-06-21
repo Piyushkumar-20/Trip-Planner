@@ -4,38 +4,38 @@ import bcrypt from "bcryptjs";
 const userSchema = new mongoose.Schema(
   {
     fullName: {
-      type: string,
-      required: [true, "Name is required"],
+      type: String,
+      required: true,
       trim: true,
       minlength: 2,
       maxlength: 50,
     },
 
     email: {
-      type: string,
-      required: [true, "Email is Required"],
+      type: String,
+      required: true,
       unique: true,
       trim: true,
       lowercase: true,
     },
 
     password: {
-      typr: string,
-      required: [true, "Password is Required"],
+      type: String,
+      required: true, 
       trim: true,
       minlength: 8,
       maxlength: 50,
     },
 
     isVerified: {
-      type: boolean,
+      type: Boolean,
       default: false,
     },
 
-    verificationToken: { type: string, select: false },
-    refreshToken: { type: string, select: false },
-    resetToken: { type: string, select: false },
-    resetTokenExpires: { type: string, select: false },
+    verificationToken: { type: String, select: false },
+    refreshToken: { type: String, select: false },
+    resetToken: { type: String, select: false },
+    resetTokenExpires: { type: String, select: false },
   },
   { timestamp: true },
 );

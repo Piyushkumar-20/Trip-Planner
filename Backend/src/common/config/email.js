@@ -37,4 +37,4 @@ const sendResetPasswordEmail = async (email, token) => {
   );
 };
 
-export default {sendResetPasswordEmail, sendResetPasswordEmail}
+export  {sendVerificationEmail, sendResetPasswordEmail}
