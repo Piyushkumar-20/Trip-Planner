@@ -21,7 +21,7 @@ const verifyRefreshToken = () => {
   return jwt.verify(token, JWT_SECRET_REFRESH_TOKEN);
 };
 
-const generateResetToken = (token) => {
+const generateVerificationToken = () => {
   const rawToken = crypto.randomBytes(32).toString("hex");
   const hashedToken = crypto
     .createHash("sha256")
@@ -36,5 +36,5 @@ export {
   verifyAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-  generateResetToken,
+  generateVerificationToken,
 };

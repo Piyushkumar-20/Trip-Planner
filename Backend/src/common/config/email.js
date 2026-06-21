@@ -36,3 +36,5 @@ const sendResetPasswordEmail = async (email, token) => {
     `<h2>Password Reset</h2><p>Click <a href="${url}">here</a> to reset your password. This link expires in 15 minutes.</p>`,
   );
 };
+
+export default {sendResetPasswordEmail, sendResetPasswordEmail}

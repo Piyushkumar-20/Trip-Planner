@@ -31,6 +31,11 @@ const userSchema = new mongoose.Schema(
       type: boolean,
       default: false,
     },
+
+    verificationToken: { type: string, select: false },
+    refreshToken: { type: string, select: false },
+    resetToken: { type: string, select: false },
+    resetTokenExpires: { type: string, select: false },
   },
   { timestamp: true },
 );
