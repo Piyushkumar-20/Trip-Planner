@@ -30,11 +30,11 @@ const register = async ({ fullName, email, password }) => {
     verificationToken: hashedToken,
   });
 
-  try {
-    await sendVerificationEmail(rawToken, email);
-  } catch (error) {
-    console.error("Failed to send verification email:", error.message);
-  }
+  // try {
+  //   await sendVerificationEmail(rawToken, email);
+  // } catch (error) {
+  //   console.error("Failed to send verification email:", error.message);
+  // }
 
   const userObj = user.toObject();
   delete userObj.password;
@@ -55,11 +55,11 @@ const login = async ({ email, password }) => {
     throw ApiError.unauthorized("Invalid Email or Password");
   }
 
-  if (!user.isVerified) {
-    throw ApiError.unauthorized(
-      "Please verify your Email but verification link",
-    );
-  }
+  // if (!user.isVerified) {
+  //   throw ApiError.unauthorized(
+  //     "Please verify your Email but verification link",
+  //   );
+  // }
 
   const refreshToken = generateRefreshToken({ id: user._id });
   const accessToken = generateAccessToken({ id: user._id });

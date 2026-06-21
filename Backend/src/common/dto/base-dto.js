@@ -6,14 +6,13 @@ class BaseDto {
   static validate(data) {
     const { error, value } = this.schema.validate(data, {
       abortEarly: false,
-      stripeUnknown: true,
+      stripUnknown: true,
     });
 
     if (error) {
-      const errors = error.details.map((d) => d.message);
       return { error, value: null };
     }
-    return { errors: null, value };
+    return { error: null, value };
   }
 }
 

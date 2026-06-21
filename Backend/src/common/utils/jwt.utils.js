@@ -3,22 +3,22 @@ import crypto from "crypto";
 
 const generateAccessToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET_ACCESS_TOKEN, {
-    expires_in: process.env.JWT_SECRET_ACCESS_EXPIRES_IN || "15m",
+    expiresIn: process.env.JWT_SECRET_ACCESS_EXPIRES_IN || "15m",
   });
 };
 
 const verifyAccessToken = (token) => {
-  return jwt.verify(token, JWT_SECRET_ACCESS_TOKEN);
+  return jwt.verify(token, process.env.JWT_SECRET_ACCESS_TOKEN);
 };
 
 const generateRefreshToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET_REFRESH_TOKEN, {
-    expires_in: process.env.JWT_SECRET_REFRESH_TOKEN_EXPIRES_IN || "7d",
+    expiresIn: process.env.JWT_SECRET_REFRESH_TOKEN_EXPIRES_IN || "7d",
   });
 };
 
 const verifyRefreshToken = () => {
-  return jwt.verify(token, JWT_SECRET_REFRESH_TOKEN);
+  return jwt.verify(token, process.env.JWT_SECRET_REFRESH_TOKEN);
 };
 
 const generateVerificationToken = () => {

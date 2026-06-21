@@ -24,7 +24,6 @@ const userSchema = new mongoose.Schema(
       required: true, 
       trim: true,
       minlength: 8,
-      maxlength: 50,
     },
 
     isVerified: {
@@ -43,11 +42,11 @@ const userSchema = new mongoose.Schema(
 // Now Hash the password before saving
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
-  this.password = await bcrypt.hash(password, 12);
 
-  userSchema.methods.comparePassword = async function (candidatePassword) {
-    return bcrypt.compare(this.password, candidatePassword);
-  };
+  this.password = await bcrypt.hash(this.password, 12);
 });
 
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 export default mongoose.model("User", userSchema);
