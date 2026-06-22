@@ -75,7 +75,7 @@ const login = async ({ email, password }) => {
 };
 
 const logout = async (userId) => {
-  await User.findByIdAndDelete(userId, { refreshToken: null });
+  await User.findByIdAndUpdate(userId, { refreshToken: null });
 };
 
 export { register, login, logout };
