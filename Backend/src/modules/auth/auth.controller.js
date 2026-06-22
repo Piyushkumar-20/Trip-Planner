@@ -7,9 +7,7 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { user, accessToken, refreshToken } = await authService.login(
-    req.body,
-  );
+  const { user, accessToken, refreshToken } = await authService.login(req.body);
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -20,10 +18,44 @@ const login = async (req, res) => {
   ApiResponse.ok(res, "Login Successfull!", { user, accessToken });
 };
 
+const refreshToken = async (req, res) => {
+  const token = req.cookie?.refreshToken;
+  const { accessToken } = await authService.refresh(token);
+  ApiResponse.ok(res, "Refreshed Token", accessToken);
+};
+
+const verifyEmail = async (req, res) => {
+  await authService.verifyEmail(req.params.token);
+  ApiResponse.ok(res, "Email verified");
+};
+
 const logout = async (req, res) => {
   await authService.logout(req.user.id);
   res.clearCookie("refreshToken");
   ApiResponse.ok(res, "Logged Out!");
 };
 
-export { register, login, logout };
+const forgetPassword = async (req, res) => {
+  await authService.forgetPassword(req.body.email);
+  ApiResponse.ok(res, "Reset Password email has been sent");
+};
+
+const resetPassword = async (req, res) => {
+  await authService.resetPassword(req.params.token, req.body.email);
+  ApiResponse.ok(res, "Password Reset Successfully");
+};
+
+const getMe = async (req, res) => {
+  await authService.getMe(req.user.id);
+  ApiResponse.ok(res, "User profile", user);
+};
+
+export {
+  register,
+  login,
+  refreshToken,
+  logout,
+  forgetPassword,
+  verifyEmail,
+  resetPassword,
+};

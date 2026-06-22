@@ -8,6 +8,20 @@ const router = Router();
 
 router.post("/register", validate(RegisterDto), controller.register);
 router.post("/login", validate(LoginDto), controller.login);
+router.post("/refresh-token", controller.refreshToken);
 router.post("/logout", authenticate, controller.logout);
+router.post("/verify-email/:token", controller.verifyEmail);
+router.post(
+  "/forgot-password/:token",
+  validate(ForgotPasswordDto),
+  controller.forgetPassword,
+);
+
+router.put(
+  "/reset-password/:token",
+  validate(ResetPasswordDto),
+  controller.resetPassword,
+);
+router.get("/me", authenticate, controller.getMe);
 
 export default router;

@@ -1,15 +1,16 @@
 import crypto from "crypto";
-import ApiResponse from "../../common/utils/api-response.js";
 import ApiError from "../../common/utils/api-error.js";
 import User from "../users/user.model.js";
 import {
   generateVerificationToken,
   generateAccessToken,
   generateRefreshToken,
+  verifyRefreshToken,
 } from "../../common/utils/jwt.utils.js";
 
 import {
   sendVerificationEmail,
+  sendResetPasswordEmail,
 } from "../../common/config/email.js";
 
 // Hash the refreshtoken before storing in DB
@@ -27,22 +28,21 @@ const register = async ({ fullName, email, password }) => {
     fullName,
     email,
     password,
-    verificationToken: hashedToken,
+    verificationToken: hashedToken, // DB stores the HASH
   });
 
-  // try {
-  //   await sendVerificationEmail(rawToken, email);
-  // } catch (error) {
-  //   console.error("Failed to send verification email:", error.message);
-  // }
+  try {
+    await sendVerificationEmail(rawToken, email); // Email gets the RAW token
+  } catch (error) {
+    console.error("Failed to send verification email:", error.message);
+  }
 
   const userObj = user.toObject();
   delete userObj.password;
   delete userObj.verificationToken;
 
-  return userObj
+  return userObj;
 };
-
 
 const login = async ({ email, password }) => {
   const user = await User.findOne({ email }).select("+password");
@@ -74,8 +74,116 @@ const login = async ({ email, password }) => {
   return { user: userObj, refreshToken, accessToken };
 };
 
+/* JWTs are stateless. Once issued, there's no way to revoke them — they're valid until they expire.
+so we asign a Accesstoken for less time and refresh time just generate new access token. 
+So that user do not have to login in every 15 min 
+*/
+const refresh = async (token) => {
+  if (!token) {
+    throw ApiError.unauthorized("Invalid Token");
+  }
+
+  const decoded = verifyRefreshToken(token);
+
+  const user = await db.findById(decoded.id).select("+refreshToken");
+  if (!user) {
+    throw ApiError.unauthorized("User no longer Exist");
+  }
+
+  const accessToken = generateAccessToken(user._id);
+
+  return { accessToken };
+};
+
+/* When a user registers, they get an email with a verification link containing a raw token. 
+This function validates that token and marks the account as verified. */
+const verifyEmail = async (token) => {
+  const trimmed = String(token).trim();
+
+  if (!trimmed) {
+    throw ApiError.unauthorized("Invalid or expired verification token");
+  }
+
+  const hashedToken = hashToken(trimmed); // hash what the user sent in register()
+  let user = await db
+    .findOne({ verificationToken: hashedToken })
+    .select("+verificationToken");
+
+  // For developers testing in postman or api testing
+  if (!user) {
+    user = await db
+      .findOne({ verificationToken: trimmed })
+      .select("verificationToken");
+  }
+
+  if (!user) {
+    throw ApiError.unauthorized("Invalid or expired verification token");
+  }
+
+  // update the user verified and remove verficationToken from DB
+  await User.findByIdAndUpdate(user._id, {
+    $set: { isVerified: true },
+    $unset: { verificationToken: 1 },
+  });
+};
+
 const logout = async (userId) => {
   await User.findByIdAndUpdate(userId, { refreshToken: null });
 };
 
-export { register, login, logout };
+const forgetPassword = async (token) => {
+  const user = await db.findById({ email });
+  if (!user) {
+    throw ApiError.unauthorized("User does not exist");
+  }
+
+  const { rawToken, hashedToken } = generateVerificationToken();
+  user.resetPasswordToken = hashedToken; // Temproary hashed token to verify that email related to a real paerson
+  user.resetPasswordTokenExpires = Date.now() * 15 * 60 * 1000; //Expires in 15min
+  user.save();
+
+  try {
+    sendResetPasswordEmail(rawToken, email);
+  } catch (error) {
+    console.error("Failed to send reset email:", error.message);
+  }
+};
+
+const resetPassword = async (token) => {
+  const hashedToken = hashToken(token);
+
+  const user = await db
+    .findById({
+      resetPasswordToken: hashedToken,
+      resetPasswordTokenExpires: { $gt: Date.now() },
+    })
+    .select("+resetPasswordToken", "+resetPasswordTokenExpires");
+
+  if (!user) {
+    throw ApiError.unauthorized("No User found");
+  }
+
+  ((user.password = newPassword),
+    (user.resetPasswordToken = undefined),
+    (user.resetPasswordTokenExpires = undefined));
+
+  await user.save();
+};
+
+const getMe = async () => {
+  const user = await db.findById(userId);
+  if (!user) {
+    throw ApiError.unauthorized("User does not exist");
+  }
+};
+
+export {
+  register,
+  login,
+  refresh,
+  verifyEmail,
+  logout,
+  forgetPassword,
+  resetPassword,
+  getMe
+};
