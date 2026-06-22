@@ -85,12 +85,12 @@ const refresh = async (token) => {
 
   const decoded = verifyRefreshToken(token);
 
-  const user = await db.findById(decoded.id).select("+refreshToken");
+  const user = await User.findById(decoded.id).select("+refreshToken");
   if (!user) {
     throw ApiError.unauthorized("User no longer Exist");
   }
 
-  const accessToken = generateAccessToken(user._id);
+  const accessToken = generateAccessToken({ id: user._id });
 
   return { accessToken };
 };
@@ -105,13 +105,13 @@ const verifyEmail = async (token) => {
   }
 
   const hashedToken = hashToken(trimmed); // hash what the user sent in register()
-  let user = await db
+  let user = await User
     .findOne({ verificationToken: hashedToken })
     .select("+verificationToken");
 
   // For developers testing in postman or api testing
   if (!user) {
-    user = await db
+    user = await User
       .findOne({ verificationToken: trimmed })
       .select("verificationToken");
   }
@@ -131,50 +131,51 @@ const logout = async (userId) => {
   await User.findByIdAndUpdate(userId, { refreshToken: null });
 };
 
-const forgetPassword = async (token) => {
-  const user = await db.findById({ email });
+const forgetPassword = async (email) => {
+  const user = await User.findOne({ email });
   if (!user) {
     throw ApiError.unauthorized("User does not exist");
   }
 
   const { rawToken, hashedToken } = generateVerificationToken();
-  user.resetPasswordToken = hashedToken; // Temproary hashed token to verify that email related to a real paerson
-  user.resetPasswordTokenExpires = Date.now() * 15 * 60 * 1000; //Expires in 15min
-  user.save();
+  user.resetPasswordToken = hashedToken;
+  user.resetPasswordTokenExpires = Date.now() + 15 * 60 * 1000; // expires in 15 min
+  await user.save();
 
   try {
-    sendResetPasswordEmail(rawToken, email);
+    await sendResetPasswordEmail(rawToken, email);
   } catch (error) {
     console.error("Failed to send reset email:", error.message);
   }
 };
 
-const resetPassword = async (token) => {
+const resetPassword = async (token, newPassword) => {
   const hashedToken = hashToken(token);
 
-  const user = await db
-    .findById({
+  const user = await User
+    .findOne({
       resetPasswordToken: hashedToken,
       resetPasswordTokenExpires: { $gt: Date.now() },
     })
-    .select("+resetPasswordToken", "+resetPasswordTokenExpires");
+    .select("+resetPasswordToken +resetPasswordTokenExpires");
 
   if (!user) {
     throw ApiError.unauthorized("No User found");
   }
 
-  ((user.password = newPassword),
-    (user.resetPasswordToken = undefined),
-    (user.resetPasswordTokenExpires = undefined));
+  user.password = newPassword;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordTokenExpires = undefined;
 
   await user.save();
 };
 
-const getMe = async () => {
-  const user = await db.findById(userId);
+const getMe = async (userId) => {
+  const user = await User.findById(userId);
   if (!user) {
     throw ApiError.unauthorized("User does not exist");
   }
+  return user;
 };
 
 export {

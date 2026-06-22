@@ -4,6 +4,9 @@ import authenticate from "./auth.middleware.js";
 import validate from "../../common/validators/validator.js";
 import RegisterDto from "./dto/register.dto.js";
 import LoginDto from "./dto/login.dto.js";
+import ForgotPasswordDto from "./dto/forgot-password.dto.js";
+import ResetPasswordDto from "./dto/reset-password.dto.js";
+
 const router = Router();
 
 router.post("/register", validate(RegisterDto), controller.register);
@@ -12,7 +15,7 @@ router.post("/refresh-token", controller.refreshToken);
 router.post("/logout", authenticate, controller.logout);
 router.post("/verify-email/:token", controller.verifyEmail);
 router.post(
-  "/forgot-password/:token",
+  "/forgot-password",
   validate(ForgotPasswordDto),
   controller.forgetPassword,
 );

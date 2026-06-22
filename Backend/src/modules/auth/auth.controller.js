@@ -19,7 +19,7 @@ const login = async (req, res) => {
 };
 
 const refreshToken = async (req, res) => {
-  const token = req.cookie?.refreshToken;
+  const token = req.cookies?.refreshToken;
   const { accessToken } = await authService.refresh(token);
   ApiResponse.ok(res, "Refreshed Token", accessToken);
 };
@@ -41,12 +41,12 @@ const forgetPassword = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-  await authService.resetPassword(req.params.token, req.body.email);
+  await authService.resetPassword(req.params.token, req.body.password);
   ApiResponse.ok(res, "Password Reset Successfully");
 };
 
 const getMe = async (req, res) => {
-  await authService.getMe(req.user.id);
+  const user = await authService.getMe(req.user.id);
   ApiResponse.ok(res, "User profile", user);
 };
 
@@ -58,4 +58,5 @@ export {
   forgetPassword,
   verifyEmail,
   resetPassword,
+  getMe,
 };
