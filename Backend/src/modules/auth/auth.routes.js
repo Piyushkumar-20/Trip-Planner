@@ -4,7 +4,7 @@ import authenticate from "./auth.middleware.js";
 import validate from "../../common/validators/validator.js";
 import RegisterDto from "./dto/register.dto.js";
 import LoginDto from "./dto/login.dto.js";
-import ForgotPasswordDto from "./dto/forgot-password.dto.js";
+import ForgotPasswordDto from "./dto/forget-password.dto.js";
 import ResetPasswordDto from "./dto/reset-password.dto.js";
 
 const router = Router();
