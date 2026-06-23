@@ -7,5 +7,9 @@ import CreateTripDto from "./dto/create-trip.dto.js";
 const router = Router();
 
 router.post("/create-trip", authenticate, validate(CreateTripDto), controller.createTrip);
+router.get("/getAllTrips", authenticate, controller.getAlltrip)
+router.post("/updateTrip", authenticate, controller.updateTrip)
+router.post("/deleteTrip", authenticate, controller.deletetrip)
+// router.post("/ Trip", authenticate, controller)
 
 export default router;
