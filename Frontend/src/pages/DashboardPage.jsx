@@ -1,21 +1,43 @@
-import { useNavigate } from "react-router-dom"
-import { useAuth } from "@/context/AuthContext"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useTrips } from "@/hooks/useTrips";
+import WelcomeBanner from "@/components/dashboard/WelcomeBanner";
+import StatsCards from "@/components/dashboard/StatsCards";
+import RecentTrips from "@/components/dashboard/RecentTrips";
+import QuickActions from "@/components/dashboard/QuickActions";
+import TripFormDialog from "@/components/trips/TripFormDialog";
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
+  const { user } = useAuth();
+  const { data: allTrips, isLoading } = useTrips();
+  const [createOpen, setCreateOpen] = useState(false);
 
-  const handleLogout = async () => {
-    await logout()
-    navigate("/login")
-  }
+  const trips = allTrips?.filter(
+    (t) =>
+      t.owner?.toString() === user?._id?.toString() ||
+      t.owner?.toString() === user?.id?.toString()
+  );
 
   return (
-    <div className="flex min-h-svh w-full flex-col items-center justify-center gap-4 p-6">
-      <h1 className="text-2xl font-semibold">Welcome, {user?.fullName}!</h1>
-      <p className="text-muted-foreground">{user?.email}</p>
-      <Button variant="outline" onClick={handleLogout}>Logout</Button>
+    <div className="space-y-6">
+      <WelcomeBanner user={user} />
+
+      <StatsCards trips={trips} loading={isLoading} />
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <RecentTrips trips={trips} loading={isLoading} />
+        </div>
+        <div>
+          <QuickActions onCreateTrip={() => setCreateOpen(true)} />
+        </div>
+      </div>
+
+      <TripFormDialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        trip={null}
+      />
     </div>
-  )
+  );
 }
