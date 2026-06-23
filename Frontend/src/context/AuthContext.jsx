@@ -1,0 +1,46 @@
+import { createContext, useContext, useEffect, useState } from "react";
+import api from "@/lib/api";
+
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(() => !!localStorage.getItem("accessToken"));
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return;
+    api.get("/auth/me")
+      .then((res) => setUser(res.data.data))
+      .catch(() => localStorage.removeItem("accessToken"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const register = async ({ fullName, email, password }) => {
+    const res = await api.post("/auth/register", { fullName, email, password });
+    return res.data;
+  };
+
+  const login = async ({ email, password }) => {
+    const res = await api.post("/auth/login", { email, password });
+    const { user: loggedInUser, accessToken } = res.data.data;
+    localStorage.setItem("accessToken", accessToken);
+    setUser(loggedInUser);
+    return loggedInUser;
+  };
+
+  const logout = async () => {
+    await api.post("/auth/logout");
+    localStorage.removeItem("accessToken");
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, loading, register, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = () => useContext(AuthContext);
