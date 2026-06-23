@@ -13,26 +13,25 @@ const addMember = async (req, res) => {
 
 const getAllMember = async (req, res) => {
   const member = await memberService.getAllMember({
-    ...req.body,
-    tripId: req.params.id,
+    tripId: req.params.tripId,
   });
-  ApiResponse.ok("res", "Members of this Trip", member);
+  ApiResponse.ok(res, "Members of this Trip", member);
 };
 
 const getMemberById = async (req, res) => {
   const member = await memberService.getMemberById({
-    tripId: req.params.id,
-    memberId: req.params.id,
+    tripId: req.params.tripId,
+    memberId: req.params.memberId,
   });
-  ApiResponse.ok(res, "Trips's Member", member);
+  ApiResponse.ok(res, "Trip's Member", member);
 };
 
 const updateMember = async (req, res) => {
-  const member = await memberService.getMemberById({
-    ...req.id,
-    tripId: req.params.id,
-    memberId: req.params.id,
-    currentUserId: req.params.id,
+  const member = await memberService.updateMember({
+    ...req.body,
+    tripId: req.params.tripId,
+    memberId: req.params.memberId,
+    currentUserId: req.user.id,
   });
 
   ApiResponse.ok(res, "Member Detail Updated Successfully!", member);
@@ -40,8 +39,9 @@ const updateMember = async (req, res) => {
 
 const deleteMember = async (req, res) => {
   await memberService.deleteMember({
-    tripId: req.params.id,
-    memberId: req.params.id,
+    tripId: req.params.tripId,
+    memberId: req.params.memberId,
+    currentUserId: req.user.id,
   });
   ApiResponse.ok(res, "Member Deleted Successfully!");
 };

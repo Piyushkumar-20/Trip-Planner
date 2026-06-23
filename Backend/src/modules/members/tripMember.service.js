@@ -49,7 +49,7 @@ const getAllMember = async ({ tripId }) => {
 };
 
 const getMemberById = async ({ tripId, memberId }) => {
-  const trip = await Trip.findById({ tripId });
+  const trip = await Trip.findById(tripId);
   if (!trip) {
     throw ApiError.notFound("Trip Not Found!");
   }
@@ -66,39 +66,45 @@ const getMemberById = async ({ tripId, memberId }) => {
   return member;
 };
 
-const updateMember = async ({ tripId, currentUserId, memberId , role}) => {
-  const trip = await Trip.findById(tripId);
+const updateMember = async ({ tripId, currentUserId, memberId, role }) => {
+  const trip = await Trip.findById(tripId).populate("owner");
   if (!trip) {
     throw ApiError.notFound("Trip Not found!");
   }
 
   if (trip.owner.id.toString() !== currentUserId) {
-    throw ApiError.unauthorized("You must be a Owner to add member in Trip");
+    throw ApiError.unauthorized("You must be a Owner to update member role");
   }
 
   const updatedMember = await Member.findOneAndUpdate(
-    memberId,
+    { _id: memberId },
     { role },
-    { new: true, runValidator: true },
+    { new: true, runValidators: true },
   );
+
+  if (!updatedMember) {
+    throw ApiError.notFound("Member not found!");
+  }
 
   return updatedMember;
 };
 
-const deleteMember = async ({ tripId, memberId }) => {
-  const trip = await Trip.findById(tripId);
+const deleteMember = async ({ tripId, memberId, currentUserId }) => {
+  const trip = await Trip.findById(tripId).populate("owner");
   if (!trip) {
     throw ApiError.notFound("Trip Not found!");
   }
+
   if (trip.owner.id.toString() !== currentUserId) {
-    throw ApiError.unauthorized("You must be a Owner to add member in Trip");
+    throw ApiError.unauthorized("You must be a Owner to remove a member");
   }
 
-  return await Member.findOneAndDelete(
-    memberId,
-    { role },
-    { new: true, runValidator: true },
-  );
+  const deleted = await Member.findOneAndDelete({ _id: memberId });
+  if (!deleted) {
+    throw ApiError.notFound("Member not found!");
+  }
+
+  return deleted;
 };
 
 export { addMember, getAllMember, getMemberById, updateMember, deleteMember };
