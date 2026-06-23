@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import ApiError from "../../common/utils/api-error.js";
-import User from "../model/user.model.js";
+import User from "../users/user.model.js";
 import {
   generateVerificationToken,
   generateAccessToken,
