@@ -7,8 +7,10 @@ import AddMemberDto from "./dto/add-member.dto.js";
 const router = Router();
 
 router.post(
-  "/add-member",
+  "/:tripId/members",
   authenticate,
   validate(AddMemberDto),
   controller.addMember,
 );
+
+export default router

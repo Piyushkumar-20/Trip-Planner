@@ -17,6 +17,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use("/api/v1/auth", authRoute);
-app.use("/api/v1/trip", tripRoute);
-app.use("api/v1/tripMember", tripMemberRoute);
+app.use("/api/v1/trips", tripRoute);
+app.use("/api/v1/trips", tripMemberRoute);
 export default app;

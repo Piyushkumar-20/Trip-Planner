@@ -4,12 +4,12 @@ import Trip from "../trips/trip.model.js";
 import ApiError from "../../common/utils/api-error.js";
 
 const addMember = async ({ tripId, currentUserId, email, role }) => {
-  const trip = await Trip.findById(tripId);
+  const trip = await Trip.findById(tripId).populate("owner");
   if (!trip) {
     throw ApiError.notFound("Trip Not Found!");
   }
 
-  if (trip.owner.id !== currentUserId) {
+  if (trip.owner.id.toString() !== currentUserId) {
     throw ApiError.unauthorized("You must be a Owner to add member in Trip");
   }
 
