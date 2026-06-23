@@ -15,7 +15,8 @@ const getAlltrip = async (req, res) => {
 };
 
 const updateTrip = async (req, res) => {
-  const { title, ...updates } = req.body;
+  const { title, newTitle, ...rest } = req.body;
+  const updates = newTitle ? { ...rest, title: newTitle } : rest;
   const trip = await tripService.updateTrip({ title, updates, owner: req.user.id });
   ApiResponse.ok(res, "Trip Updated", trip);
 };

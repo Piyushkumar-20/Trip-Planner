@@ -30,25 +30,22 @@ const getAllTrip = async () => {
 };
 
 const updateTrip = async ({ title, updates, owner }) => {
-  const existing = await Trip.findOne({ title, owner });
-  if (!existing) {
-    throw ApiError.notFound("Trip Not Found !");
-  }
-
   const trip = await Trip.findOneAndUpdate({ title, owner }, updates, {
-    new: true,
+    returnDocument: "after",
     runValidators: true,
   });
+  if (!trip) {
+    throw ApiError.notFound("Trip Not Found!");
+  }
 
   return trip;
 };
 
 const deleteTrip = async (title, owner) => {
-  const existing = await Trip.findOne({ title, owner });
-  if (!existing) {
-    throw ApiError.notFound("Trip Not Found !");
-  }
   const trip = await Trip.findOneAndDelete({ title, owner });
+  if (!trip) {
+    throw ApiError.notFound("Trip Not Found!");
+  }
   return trip;
 };
 
