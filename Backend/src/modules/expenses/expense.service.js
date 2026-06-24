@@ -58,4 +58,36 @@ const deleteExpense = async ({ tripId, expenseId }) => {
   return expense;
 };
 
-export { createExpense, getAllExpense, getExpenseById, updateExpense, deleteExpense };
+const getTripBalances = async ({ tripId }) => {
+  const [expenses, members] = await Promise.all([
+    Expenses.find({ tripId }),
+    Member.find({ tripId }).populate("userId", "fullName email"),
+  ]);
+
+  const balanceMap = {};
+
+  members.forEach(({ userId }) => {
+    balanceMap[userId._id] = {
+      user: { _id: userId._id, fullName: userId.fullName, email: userId.email },
+      paid: 0,
+      owes: 0,
+      balance: 0,
+    };
+  });
+
+  expenses.forEach(({ paidBy, amount, shareAmount }) => {
+    if (balanceMap[paidBy]) {
+      balanceMap[paidBy].paid += amount;
+    }
+    members.forEach(({ userId }) => {
+      balanceMap[userId._id].owes += shareAmount;
+    });
+  });
+
+  return Object.values(balanceMap).map((entry) => ({
+    ...entry,
+    balance: entry.paid - entry.owes,
+  }));
+};
+
+export { createExpense, getAllExpense, getExpenseById, updateExpense, deleteExpense, getTripBalances };

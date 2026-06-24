@@ -1,4 +1,5 @@
 import * as expenseService from "./expense.service.js";
+
 import ApiResponse from "../../common/utils/api-response.js";
 
 const createExpense = async (req, res) => {
@@ -42,10 +43,18 @@ const deleteExpense = async (req, res) => {
   ApiResponse.ok(res, "Expense Deleted!", expenses);
 };
 
+const getTripBalances = async (req, res) => {
+  const balances = await expenseService.getTripBalances({
+    tripId: req.params.tripId,
+  });
+  ApiResponse.ok(res, "Trip balances!", balances);
+};
+
 export {
   createExpense,
   getAllExpenses,
   getExpenseById,
   updateExpense,
   deleteExpense,
+  getTripBalances,
 };
