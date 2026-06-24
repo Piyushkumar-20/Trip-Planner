@@ -3,6 +3,7 @@ import { Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTrips } from "@/hooks/useTrips";
 import { useMembers } from "@/hooks/useMembers";
+import { can } from "@/lib/rbac";
 import MemberTable from "@/components/members/MemberTable";
 import AddMemberDialog from "@/components/members/AddMemberDialog";
 import UpdateRoleDialog from "@/components/members/UpdateRoleDialog";
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { UserPlus } from "lucide-react";
 
-function MembersContent({ tripId, isOwner }) {
+function MembersContent({ tripId, canManageMembers }) {
   const { data: members, isLoading } = useMembers(tripId);
   const [addOpen, setAddOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
@@ -29,7 +30,7 @@ function MembersContent({ tripId, isOwner }) {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        {isOwner && (
+        {canManageMembers && (
           <Button size="sm" onClick={() => setAddOpen(true)}>
             <UserPlus className="mr-1.5 h-3.5 w-3.5" /> Add Member
           </Button>
@@ -42,7 +43,7 @@ function MembersContent({ tripId, isOwner }) {
           title="No members yet"
           description="Add members to collaborate on this trip."
           action={
-            isOwner && (
+            canManageMembers && (
               <Button onClick={() => setAddOpen(true)}>
                 <UserPlus className="mr-2 h-4 w-4" /> Add Member
               </Button>
@@ -53,7 +54,7 @@ function MembersContent({ tripId, isOwner }) {
         <MemberTable
           members={members}
           loading={isLoading}
-          isOwner={isOwner}
+          isOwner={canManageMembers}
           onUpdateRole={(m) => {
             setSelectedMember(m);
             setUpdateRoleOpen(true);
@@ -91,18 +92,17 @@ export default function MembersPage() {
   const { data: allTrips, isLoading: tripsLoading } = useTrips();
   const [selectedTripId, setSelectedTripId] = useState("");
 
-  const myTrips = useMemo(
-    () =>
-      allTrips?.filter(
-        (t) =>
-          t.owner?.toString() === user?._id?.toString() ||
-          t.owner?.toString() === user?.id?.toString()
-      ) ?? [],
-    [allTrips, user]
-  );
+  // Show all trips the user has access to (backend already scopes this)
+  const trips = allTrips ?? [];
 
-  const selectedTrip = myTrips.find((t) => t._id === selectedTripId);
-  const isOwner = !!selectedTrip;
+  const selectedTrip = trips.find((t) => t._id === selectedTripId);
+
+  const userId = user?._id?.toString() ?? user?.id?.toString();
+  const isOwner = selectedTrip?.owner?.toString() === userId;
+
+  // canManageMembers is resolved after members load in MembersContent,
+  // but we can fast-path it here for the trip owner
+  const canManageMembers = isOwner;
 
   return (
     <div>
@@ -121,7 +121,7 @@ export default function MembersPage() {
             <SelectValue placeholder="Select a trip to manage members..." />
           </SelectTrigger>
           <SelectContent>
-            {myTrips.map((trip) => (
+            {trips.map((trip) => (
               <SelectItem key={trip._id} value={trip._id}>
                 {trip.title}
               </SelectItem>
@@ -137,7 +137,7 @@ export default function MembersPage() {
           description="Choose a trip from the dropdown above to view and manage its members."
         />
       ) : (
-        <MembersContent tripId={selectedTripId} isOwner={isOwner} />
+        <MembersContent tripId={selectedTripId} canManageMembers={canManageMembers} />
       )}
     </div>
   );

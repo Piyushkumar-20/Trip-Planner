@@ -28,7 +28,8 @@ export const useCreateTrip = (onSuccess) => {
 export const useUpdateTrip = (onSuccess) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data) => tripService.update(data),
+    // Expects { tripId, ...fields }
+    mutationFn: ({ tripId, ...data }) => tripService.update(tripId, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["trips"] });
       toast.success("Trip updated successfully");
@@ -42,7 +43,7 @@ export const useUpdateTrip = (onSuccess) => {
 export const useDeleteTrip = (onSuccess) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (title) => tripService.delete(title),
+    mutationFn: (tripId) => tripService.delete(tripId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["trips"] });
       toast.success("Trip deleted successfully");

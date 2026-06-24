@@ -14,7 +14,14 @@ function getTripStatus(trip) {
   return { label: "Active", variant: "default" };
 }
 
-export default function TripCard({ trip, memberCount = 0, onEdit, onDelete }) {
+export default function TripCard({
+  trip,
+  memberCount = 0,
+  onEdit,
+  onDelete,
+  canEdit = false,
+  canDelete = false,
+}) {
   const navigate = useNavigate();
   const status = getTripStatus(trip);
 
@@ -51,24 +58,28 @@ export default function TripCard({ trip, memberCount = 0, onEdit, onDelete }) {
       </CardContent>
 
       <CardFooter className="flex gap-2 pt-0">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0"
-          onClick={() => onEdit(trip)}
-          title="Edit trip"
-        >
-          <Pencil className="h-3.5 w-3.5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-          onClick={() => onDelete(trip)}
-          title="Delete trip"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </Button>
+        {canEdit && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0"
+            onClick={() => onEdit(trip)}
+            title="Edit trip"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </Button>
+        )}
+        {canDelete && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+            onClick={() => onDelete(trip)}
+            title="Delete trip"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        )}
         <Button
           variant="outline"
           size="sm"

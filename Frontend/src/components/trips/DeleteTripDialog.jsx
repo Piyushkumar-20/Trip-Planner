@@ -28,7 +28,7 @@ export default function DeleteTripDialog({ open, onClose, trip }) {
           <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            onClick={() => deleteTrip.mutate(trip?.title)}
+            onClick={() => deleteTrip.mutate(trip?._id)}
             disabled={deleteTrip.isPending}
           >
             {deleteTrip.isPending ? "Deleting..." : "Delete Trip"}

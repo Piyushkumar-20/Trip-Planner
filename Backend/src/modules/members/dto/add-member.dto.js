@@ -8,7 +8,7 @@ class AddMemberDto extends BaseDto {
       .pattern(/^[a-f\d]{24}$/i)
       .messages({ "string.pattern.base": "tripId must be a valid ObjectId" }),
     email: Joi.string().email().lowercase().required(),
-    role: Joi.string().valid("Owner", "Editor", "Viewer").default("Viewer"),
+    role: Joi.string().valid("Editor", "Viewer").default("Viewer"),
   });
 }
 

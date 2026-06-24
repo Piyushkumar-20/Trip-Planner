@@ -20,8 +20,8 @@ import {
 import { useAddMember } from "@/hooks/useMembers";
 
 const ROLES = [
-  { value: "editor", label: "Editor" },
-  { value: "viewer", label: "Viewer" },
+  { value: "Editor", label: "Editor" },
+  { value: "Viewer", label: "Viewer" },
 ];
 
 export default function AddMemberDialog({ open, onClose, tripId }) {

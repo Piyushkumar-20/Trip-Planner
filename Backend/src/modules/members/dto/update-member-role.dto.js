@@ -3,7 +3,7 @@ import BaseDto from "../../../common/dto/base-dto.js";
 
 class UpdateMemberRoleDto extends BaseDto {
   static schema = Joi.object({
-    role: Joi.string().valid("Owner", "Editor", "Viewer").required(),
+    role: Joi.string().valid("Editor", "Viewer").required(),
   });
 }
 

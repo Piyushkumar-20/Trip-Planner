@@ -1,4 +1,4 @@
-import { Map, CalendarCheck, Clock, TrendingUp } from "lucide-react";
+import { Map, CalendarCheck,  TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 

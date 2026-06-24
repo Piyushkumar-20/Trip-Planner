@@ -64,8 +64,8 @@ export default function TripFormDialog({ open, onClose, trip }) {
 
     if (isEdit) {
       updateTrip.mutate({
-        title: trip.title,
-        newTitle: payload.title !== trip.title ? payload.title : undefined,
+        tripId: trip._id,
+        title: payload.title,
         description: payload.description,
         startDate: payload.startDate,
         endDate: payload.endDate,

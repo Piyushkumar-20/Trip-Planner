@@ -1,110 +1,44 @@
 import Member from "./tripMembers.model.js";
 import User from "../users/user.model.js";
-import Trip from "../trips/trip.model.js";
 import ApiError from "../../common/utils/api-error.js";
 
-const addMember = async ({ tripId, currentUserId, email, role }) => {
-  const trip = await Trip.findById(tripId).populate("owner");
-  if (!trip) {
-    throw ApiError.notFound("Trip Not Found!");
-  }
-
-  if (trip.owner.id.toString() !== currentUserId) {
-    throw ApiError.unauthorized("You must be a Owner to add member in Trip");
-  }
-
+const addMember = async ({ tripId, email, role }) => {
   const user = await User.findOne({ email });
-  if (!user) {
-    throw ApiError.notFound("User not Found!");
-  }
+  if (!user) throw ApiError.notFound("User not found!");
 
-  const existing = await Member.findOne({
-    tripId,
-    userId: user._id,
-  });
-  if (existing) {
-    throw ApiError.conflict("Trip Member Already Exist");
-  }
+  const existing = await Member.findOne({ tripId, userId: user._id });
+  if (existing) throw ApiError.conflict("User is already a member of this trip");
 
-  const tripMember = await Member.create({
-    tripId,
-    userId: user._id,
-    role,
-  });
-
-  return tripMember;
+  return await Member.create({ tripId, userId: user._id, role });
 };
 
 const getAllMember = async ({ tripId }) => {
-  const trip = await Trip.findById(tripId);
-  if (!trip) {
-    throw ApiError.notFound("Trip Not Found!");
-  }
-
-  const members = await Member.find({ tripId }).populate(
-    "userId",
-    "fullName email",
-  );
-  return members;
+  return await Member.find({ tripId }).populate("userId", "fullName email");
 };
 
 const getMemberById = async ({ tripId, memberId }) => {
-  const trip = await Trip.findById(tripId);
-  if (!trip) {
-    throw ApiError.notFound("Trip Not Found!");
-  }
-
-  const member = await Member.findOne({
-    tripId,
-    _id: memberId,
-  }).populate("userId", "fullName email");
-
-  if (!member) {
-    throw ApiError.notFound("Member not found!");
-  }
-
+  const member = await Member.findOne({ tripId, _id: memberId }).populate(
+    "userId",
+    "fullName email",
+  );
+  if (!member) throw ApiError.notFound("Member not found!");
   return member;
 };
 
-const updateMember = async ({ tripId, currentUserId, memberId, role }) => {
-  const trip = await Trip.findById(tripId).populate("owner");
-  if (!trip) {
-    throw ApiError.notFound("Trip Not found!");
-  }
-
-  if (trip.owner.id.toString() !== currentUserId) {
-    throw ApiError.unauthorized("You must be a Owner to update member role");
-  }
-
-  const updatedMember = await Member.findOneAndUpdate(
-    { _id: memberId },
+const updateMember = async ({ tripId, memberId, role }) => {
+  const member = await Member.findOneAndUpdate(
+    { _id: memberId, tripId },
     { role },
     { new: true, runValidators: true },
   );
-
-  if (!updatedMember) {
-    throw ApiError.notFound("Member not found!");
-  }
-
-  return updatedMember;
+  if (!member) throw ApiError.notFound("Member not found!");
+  return member;
 };
 
-const deleteMember = async ({ tripId, memberId, currentUserId }) => {
-  const trip = await Trip.findById(tripId).populate("owner");
-  if (!trip) {
-    throw ApiError.notFound("Trip Not found!");
-  }
-
-  if (trip.owner.id.toString() !== currentUserId) {
-    throw ApiError.unauthorized("You must be a Owner to remove a member");
-  }
-
-  const deleted = await Member.findOneAndDelete({ _id: memberId });
-  if (!deleted) {
-    throw ApiError.notFound("Member not found!");
-  }
-
-  return deleted;
+const deleteMember = async ({ tripId, memberId }) => {
+  const member = await Member.findOneAndDelete({ _id: memberId, tripId });
+  if (!member) throw ApiError.notFound("Member not found!");
+  return member;
 };
 
 export { addMember, getAllMember, getMemberById, updateMember, deleteMember };

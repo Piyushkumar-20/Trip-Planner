@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useTrips } from "@/hooks/useTrips";
 import { useMembers } from "@/hooks/useMembers";
+import { can } from "@/lib/rbac";
 import TripFormDialog from "@/components/trips/TripFormDialog";
 import DeleteTripDialog from "@/components/trips/DeleteTripDialog";
 import AddMemberDialog from "@/components/members/AddMemberDialog";
@@ -53,9 +54,17 @@ export default function TripDetailsPage() {
   const [updateRoleOpen, setUpdateRoleOpen] = useState(false);
   const [removeOpen, setRemoveOpen] = useState(false);
 
-  const isOwner =
-    trip?.owner?.toString() === user?._id?.toString() ||
-    trip?.owner?.toString() === user?.id?.toString();
+  // Derive the current user's role for this trip
+  const userId = user?._id?.toString() ?? user?.id?.toString();
+  const isOwner = trip?.owner?.toString() === userId;
+  const memberRecord = members?.find(
+    (m) => m.userId?._id?.toString() === userId,
+  );
+  const currentRole = isOwner ? "Owner" : memberRecord?.role;
+
+  const canEditTrip = can(currentRole, "editTrip");
+  const canDeleteTrip = can(currentRole, "deleteTrip");
+  const canManageMembers = can(currentRole, "addMember");
 
   if (tripsLoading && !trip) {
     return (
@@ -105,11 +114,13 @@ export default function TripDetailsPage() {
                 <p className="text-muted-foreground text-sm">{trip.description}</p>
               )}
             </div>
-            {isOwner && (
-              <div className="flex gap-2 shrink-0">
+            <div className="flex gap-2 shrink-0">
+              {canEditTrip && (
                 <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
                   <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit
                 </Button>
+              )}
+              {canDeleteTrip && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -118,8 +129,8 @@ export default function TripDetailsPage() {
                 >
                   <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -164,7 +175,7 @@ export default function TripDetailsPage() {
               </Badge>
             )}
           </CardTitle>
-          {isOwner && (
+          {canManageMembers && (
             <Button size="sm" onClick={() => setAddMemberOpen(true)}>
               <UserPlus className="mr-1.5 h-3.5 w-3.5" /> Add Member
             </Button>
@@ -188,7 +199,7 @@ export default function TripDetailsPage() {
             <MemberTable
               members={members}
               loading={false}
-              isOwner={isOwner}
+              isOwner={canManageMembers}
               onUpdateRole={(m) => {
                 setSelectedMember(m);
                 setUpdateRoleOpen(true);

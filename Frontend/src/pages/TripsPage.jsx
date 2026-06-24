@@ -3,6 +3,7 @@ import { Map, PlusCircle, Search } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTrips } from "@/hooks/useTrips";
 import { useMembers } from "@/hooks/useMembers";
+import { can } from "@/lib/rbac";
 import TripCard from "@/components/trips/TripCard";
 import TripFormDialog from "@/components/trips/TripFormDialog";
 import DeleteTripDialog from "@/components/trips/DeleteTripDialog";
@@ -13,19 +14,29 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function TripCardWithMembers({ trip, onEdit, onDelete }) {
+  const { user } = useAuth();
   const { data: members } = useMembers(trip._id);
+
+  const userId = user?._id?.toString() ?? user?.id?.toString();
+  const isOwner = trip.owner?.toString() === userId;
+  const memberRecord = members?.find(
+    (m) => m.userId?._id?.toString() === userId,
+  );
+  const currentRole = isOwner ? "Owner" : memberRecord?.role;
+
   return (
     <TripCard
       trip={trip}
       memberCount={members?.length ?? 0}
       onEdit={onEdit}
       onDelete={onDelete}
+      canEdit={can(currentRole, "editTrip")}
+      canDelete={can(currentRole, "deleteTrip")}
     />
   );
 }
 
 export default function TripsPage() {
-  const { user } = useAuth();
   const { data: allTrips, isLoading } = useTrips();
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
@@ -33,16 +44,11 @@ export default function TripsPage() {
   const [deleteTrip, setDeleteTrip] = useState(null);
 
   const trips = useMemo(() => {
-    const mine = allTrips?.filter(
-      (t) =>
-        t.owner?.toString() === user?._id?.toString() ||
-        t.owner?.toString() === user?.id?.toString()
-    ) ?? [];
-    if (!search.trim()) return mine;
-    return mine.filter((t) =>
-      t.title.toLowerCase().includes(search.toLowerCase())
+    if (!search.trim()) return allTrips ?? [];
+    return (allTrips ?? []).filter((t) =>
+      t.title.toLowerCase().includes(search.toLowerCase()),
     );
-  }, [allTrips, user, search]);
+  }, [allTrips, search]);
 
   return (
     <div>
