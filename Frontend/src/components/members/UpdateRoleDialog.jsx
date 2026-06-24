@@ -18,12 +18,12 @@ import {
 import { useUpdateMemberRole } from "@/hooks/useMembers";
 
 const ROLES = [
-  { value: "editor", label: "Editor" },
-  { value: "viewer", label: "Viewer" },
+  { value: "Editor", label: "Editor" },
+  { value: "Viewer", label: "Viewer" },
 ];
 
 export default function UpdateRoleDialog({ open, onClose, member, tripId }) {
-  const [role, setRole] = useState(member?.role ?? "viewer");
+  const [role, setRole] = useState(member?.role ?? "Viewer");
   const updateRole = useUpdateMemberRole(tripId, onClose);
 
   useEffect(() => {

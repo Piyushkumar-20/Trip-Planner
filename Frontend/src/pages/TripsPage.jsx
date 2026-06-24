@@ -18,7 +18,7 @@ function TripCardWithMembers({ trip, onEdit, onDelete }) {
   const { data: members } = useMembers(trip._id);
 
   const userId = user?._id?.toString() ?? user?.id?.toString();
-  const isOwner = trip.owner?.toString() === userId;
+  const isOwner = (trip.owner?._id ?? trip.owner)?.toString() === userId;
   const memberRecord = members?.find(
     (m) => m.userId?._id?.toString() === userId,
   );

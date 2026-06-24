@@ -12,11 +12,7 @@ export default function DashboardPage() {
   const { data: allTrips, isLoading } = useTrips();
   const [createOpen, setCreateOpen] = useState(false);
 
-  const trips = allTrips?.filter(
-    (t) =>
-      t.owner?.toString() === user?._id?.toString() ||
-      t.owner?.toString() === user?.id?.toString()
-  );
+  const trips = allTrips ?? [];
 
   return (
     <div className="space-y-6">

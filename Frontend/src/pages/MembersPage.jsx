@@ -98,7 +98,7 @@ export default function MembersPage() {
   const selectedTrip = trips.find((t) => t._id === selectedTripId);
 
   const userId = user?._id?.toString() ?? user?.id?.toString();
-  const isOwner = selectedTrip?.owner?.toString() === userId;
+  const isOwner = (selectedTrip?.owner?._id ?? selectedTrip?.owner)?.toString() === userId;
 
   // canManageMembers is resolved after members load in MembersContent,
   // but we can fast-path it here for the trip owner

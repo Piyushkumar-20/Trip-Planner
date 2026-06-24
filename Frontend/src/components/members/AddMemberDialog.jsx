@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,17 +28,15 @@ export default function AddMemberDialog({ open, onClose, tripId }) {
   const {
     register,
     handleSubmit,
-    setValue,
+    control,
     reset,
-    watch,
     formState: { errors },
-  } = useForm({ defaultValues: { email: "", role: "viewer" } });
+  } = useForm({ defaultValues: { email: "", role: "Viewer" } });
 
-  const role = watch("role");
   const addMember = useAddMember(tripId, onClose);
 
   useEffect(() => {
-    if (open) reset({ email: "", role: "viewer" });
+    if (open) reset({ email: "", role: "Viewer" });
   }, [open, reset]);
 
   const onSubmit = (values) => {
@@ -74,25 +72,33 @@ export default function AddMemberDialog({ open, onClose, tripId }) {
 
           <div className="space-y-1.5">
             <Label>Role</Label>
-            <Select
-              value={role}
-              onValueChange={(v) => setValue("role", v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a role" />
-              </SelectTrigger>
-              <SelectContent>
-                {ROLES.map((r) => (
-                  <SelectItem key={r.value} value={r.value}>
-                    {r.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="role"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLES.map((r) => (
+                      <SelectItem key={r.value} value={r.value}>
+                        {r.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={addMember.isPending}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={addMember.isPending}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={addMember.isPending}>

@@ -12,7 +12,7 @@ const getAllTrip = async ({ userId }) => {
   const memberTripIds = await Member.distinct("tripId", { userId });
   return await Trip.find({
     $or: [{ owner: userId }, { _id: { $in: memberTripIds } }],
-  });
+  }).populate("owner", "fullName email");
 };
 
 const updateTrip = async ({ tripId, updates }) => {

@@ -55,8 +55,9 @@ export default function TripDetailsPage() {
   const [removeOpen, setRemoveOpen] = useState(false);
 
   // Derive the current user's role for this trip
+  // trip.owner is populated: { _id, fullName, email }
   const userId = user?._id?.toString() ?? user?.id?.toString();
-  const isOwner = trip?.owner?.toString() === userId;
+  const isOwner = (trip?.owner?._id ?? trip?.owner)?.toString() === userId;
   const memberRecord = members?.find(
     (m) => m.userId?._id?.toString() === userId,
   );
@@ -157,7 +158,9 @@ export default function TripDetailsPage() {
               <User className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
                 <p className="text-xs text-muted-foreground mb-0.5">Owner</p>
-                <p className="font-medium">{user?.fullName}</p>
+                <p className="font-medium">
+                  {trip.owner?.fullName ?? user?.fullName}
+                </p>
               </div>
             </div>
           </div>

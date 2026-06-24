@@ -19,13 +19,13 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 const roleConfig = {
-  owner: { label: "Owner", variant: "default", icon: Shield },
-  editor: { label: "Editor", variant: "secondary", icon: UserCheck },
-  viewer: { label: "Viewer", variant: "outline", icon: Eye },
+  Owner:  { label: "Owner",  variant: "default",   icon: Shield },
+  Editor: { label: "Editor", variant: "secondary",  icon: UserCheck },
+  Viewer: { label: "Viewer", variant: "outline",    icon: Eye },
 };
 
 function RoleBadge({ role }) {
-  const config = roleConfig[role] ?? roleConfig.viewer;
+  const config = roleConfig[role] ?? roleConfig.Viewer;
   const Icon = config.icon;
   return (
     <Badge variant={config.variant} className="gap-1">
