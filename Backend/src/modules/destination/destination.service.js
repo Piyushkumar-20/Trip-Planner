@@ -59,7 +59,7 @@ const updateDestination = async ({
 };
 
 const deleteDestination = async ({ destinationId, tripId }) => {
-  return await Destination.findByIdAndDelete({ _id: destinationId, tripId });
+  return await Destination.findOneAndDelete({ _id: destinationId, tripId });
 };
 
 export {

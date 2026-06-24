@@ -5,11 +5,14 @@ export const ROLES = {
 };
 
 const PERMISSIONS = {
-  editTrip:         ["Owner", "Editor"],
-  deleteTrip:       ["Owner"],
-  addMember:        ["Owner"],
-  removeMember:     ["Owner"],
-  updateMemberRole: ["Owner"],
+  editTrip:          ["Owner", "Editor"],
+  deleteTrip:        ["Owner"],
+  addMember:         ["Owner"],
+  removeMember:      ["Owner"],
+  updateMemberRole:  ["Owner"],
+  addDestination:    ["Owner"],
+  editDestination:   ["Owner", "Editor"],
+  deleteDestination: ["Owner"],
 };
 
 /** Returns true if the given role is allowed to perform the action. */
