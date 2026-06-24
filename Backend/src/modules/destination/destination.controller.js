@@ -5,7 +5,7 @@ const createDestination = async (req, res) => {
   const destination = await destinationService.createDestination({
     ...req.body,
     tripId: req.params.tripId,
-    currentUserId: req.params.currentUserId,
+    currentUserId: req.user.id,
   });
   ApiResponse.created(res, "Destination Created Successfully!", destination);
 };

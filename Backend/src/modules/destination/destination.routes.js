@@ -6,6 +6,8 @@ import {
   requireRole,
 } from "../../common/middleware/authorize.js";
 import * as controller from "./destination.controller.js";
+import CreateDestinationDto from "./dto/create-destination.dto.js";
+import UpdateDestinationDto from "./dto/update-destination.dto.js";
 
 const router = Router();
 
@@ -39,6 +41,7 @@ router.patch(
   authenticate,
   loadTripRole,
   requireRole("Owner", "Editor"),
+  validate(UpdateDestinationDto),
   controller.updateDestination,
 );
 
@@ -46,6 +49,8 @@ router.delete(
   "/:tripId/destinations/:destinationId",
   authenticate,
   loadTripRole,
-  requireRole("owner"),
+  requireRole("Owner"),
   controller.deleteDestination,
 );
+
+export default router;

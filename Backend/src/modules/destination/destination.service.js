@@ -28,7 +28,7 @@ const getAllDestination = async ({ tripId }) => {
 };
 
 const getDestinationById = async ({ tripId, destinationId }) => {
-  return await Destination.findById({ tripId, _id: destinationId }).populate(
+  return await Destination.findOne({ tripId, _id: destinationId }).populate(
     "createdBy",
     "fullName email",
   );
@@ -44,7 +44,7 @@ const updateDestination = async ({
   estimatedCost,
 }) => {
   const destination = await Destination.findOne({ tripId, _id: destinationId });
-  if (!existing) {
+  if (!destination) {
     throw ApiError.notFound("Destination Not Found!");
   }
 
