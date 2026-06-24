@@ -65,7 +65,7 @@ const login = async ({ email, password }) => {
   const accessToken = generateAccessToken({ id: user._id });
 
   user.refreshToken = hashToken(refreshToken);
-  await user.save({ validationBefore: false });
+  await user.save({ validateBeforeSave: false });
 
   const userObj = user.toObject();
   delete userObj.password;
@@ -90,9 +90,17 @@ const refresh = async (token) => {
     throw ApiError.unauthorized("User no longer Exist");
   }
 
+  if (user.refreshToken !== hashToken(token)) {
+    throw ApiError.unauthorized("Invalid Token");
+  }
+
+  const newRefreshToken = generateRefreshToken({ id: user._id });
   const accessToken = generateAccessToken({ id: user._id });
 
-  return { accessToken };
+  user.refreshToken = hashToken(newRefreshToken);
+  await user.save({ validateBeforeSave: false });
+
+  return { accessToken, refreshToken: newRefreshToken };
 };
 
 /* When a user registers, they get an email with a verification link containing a raw token. 

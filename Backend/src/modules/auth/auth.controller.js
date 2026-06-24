@@ -20,8 +20,16 @@ const login = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   const token = req.cookies?.refreshToken;
-  const { accessToken } = await authService.refresh(token);
-  ApiResponse.ok(res, "Refreshed Token", accessToken);
+  const { accessToken, refreshToken: newRefreshToken } = await authService.refresh(token);
+
+  res.cookie("refreshToken", newRefreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  ApiResponse.ok(res, "Refreshed Token", { accessToken });
 };
 
 const verifyEmail = async (req, res) => {

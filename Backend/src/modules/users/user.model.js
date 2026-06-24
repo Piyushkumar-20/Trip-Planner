@@ -33,10 +33,10 @@ const userSchema = new mongoose.Schema(
 
     verificationToken: { type: String, select: false },
     refreshToken: { type: String, select: false },
-    resetToken: { type: String, select: false },
-    resetTokenExpires: { type: String, select: false },
+    resetPasswordToken: { type: String, select: false },
+    resetPasswordTokenExpires: { type: Date, select: false },
   },
-  { timestamp: true },
+  { timestamps: true },
 );
 
 // Now Hash the password before saving
