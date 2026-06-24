@@ -7,7 +7,7 @@ export default function WelcomeBanner({ user }) {
     hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-primary/10 via-primary/5 to-background">
+    <Card className="relative overflow-hidden border-0 bg-linear-to-br from-primary/10 via-primary/5 to-background">
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div>
