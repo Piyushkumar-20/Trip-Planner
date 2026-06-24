@@ -13,6 +13,10 @@ const PERMISSIONS = {
   addDestination:    ["Owner"],
   editDestination:   ["Owner", "Editor"],
   deleteDestination: ["Owner"],
+  addExpense:        ["Owner", "Editor", "Viewer"],
+  deleteExpense:     ["Owner"],
+  uploadDocument:    ["Owner", "Editor", "Viewer"],
+  deleteDocument:    ["Owner"],
 };
 
 /** Returns true if the given role is allowed to perform the action. */

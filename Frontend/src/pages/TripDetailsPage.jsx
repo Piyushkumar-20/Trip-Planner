@@ -4,10 +4,10 @@ import { differenceInDays, format } from "date-fns";
 import {
   ArrowLeft,
   CalendarDays,
+  FileText,
   MapPin,
   Pencil,
   Receipt,
-  Route,
   Trash2,
   User,
   UserPlus,
@@ -17,6 +17,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useTrips } from "@/hooks/useTrips";
 import { useMembers } from "@/hooks/useMembers";
 import { useDestinations } from "@/hooks/useDestinations";
+import { useExpenses, useExpenseBalances } from "@/hooks/useExpenses";
+import { useDocuments } from "@/hooks/useDocuments";
 import { can } from "@/lib/rbac";
 import TripFormDialog from "@/components/trips/TripFormDialog";
 import DeleteTripDialog from "@/components/trips/DeleteTripDialog";
@@ -27,6 +29,9 @@ import MemberTable from "@/components/members/MemberTable";
 import DestinationFormDialog from "@/components/destinations/DestinationFormDialog";
 import DeleteDestinationDialog from "@/components/destinations/DeleteDestinationDialog";
 import DestinationList from "@/components/destinations/DestinationList";
+import AddExpenseDialog from "@/components/expenses/AddExpenseDialog";
+import ExpenseList from "@/components/expenses/ExpenseList";
+import DocumentList from "@/components/documents/DocumentList";
 import EmptyState from "@/components/shared/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -73,6 +78,9 @@ export default function TripDetailsPage() {
 
   const { data: members, isLoading: membersLoading } = useMembers(tripId);
   const { data: destinations, isLoading: destinationsLoading } = useDestinations(tripId);
+  const { data: expenses,  isLoading: expensesLoading  } = useExpenses(tripId);
+  const { data: balances,  isLoading: balancesLoading  } = useExpenseBalances(tripId);
+  const { data: documents, isLoading: documentsLoading } = useDocuments(tripId);
 
   const [editOpen, setEditOpen]           = useState(false);
   const [deleteOpen, setDeleteOpen]       = useState(false);
@@ -83,6 +91,7 @@ export default function TripDetailsPage() {
   const [destFormOpen, setDestFormOpen]               = useState(false);
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [deleteDestOpen, setDeleteDestOpen]           = useState(false);
+  const [addExpenseOpen, setAddExpenseOpen]           = useState(false);
 
   const userId = user?._id?.toString() ?? user?.id?.toString();
   const isOwner = (trip?.owner?._id ?? trip?.owner)?.toString() === userId;
@@ -95,6 +104,10 @@ export default function TripDetailsPage() {
   const canAddDestination  = can(currentRole, "addDestination");
   const canEditDestination = can(currentRole, "editDestination");
   const canDelDestination  = can(currentRole, "deleteDestination");
+  const canAddExpense      = can(currentRole, "addExpense");
+  const canDeleteExpense   = can(currentRole, "deleteExpense");
+  const canUploadDocument  = can(currentRole, "uploadDocument");
+  const canDeleteDocument  = can(currentRole, "deleteDocument");
 
   if (tripsLoading && !trip) {
     return (
@@ -155,11 +168,16 @@ export default function TripDetailsPage() {
       </div>
 
       {/* ── Hero card ── */}
-      {/*
-        Card already has overflow-hidden. py-0 removes its default vertical
-        padding so the cover image bleeds edge-to-edge against the card border.
-      */}
-      <Card className="py-0">
+      <Card className="py-0 overflow-hidden">
+
+        {/* Cover image */}
+        {trip.coverImage && (
+          <img
+            src={trip.coverImage}
+            alt="Trip cover"
+            className="h-36 w-full object-cover"
+          />
+        )}
 
         {/* Trip identity */}
         <div className="px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
@@ -224,7 +242,7 @@ export default function TripDetailsPage() {
           <TabsTrigger value="destinations">
             Destinations{destCount !== null ? ` (${destCount})` : ""}
           </TabsTrigger>
-          <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="expenses">Expenses</TabsTrigger>
         </TabsList>
 
@@ -355,14 +373,61 @@ export default function TripDetailsPage() {
           </Card>
         </TabsContent>
 
-        {/* ── Itinerary ── */}
-        <TabsContent value="itinerary">
-          <ComingSoon icon={Route} title="Itinerary" />
+        {/* ── Documents ── */}
+        <TabsContent value="documents">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-semibold">Documents</CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Tickets, booking confirmations, and trip files.
+              </p>
+            </CardHeader>
+
+            <Separator />
+
+            <CardContent className="p-0">
+              <DocumentList
+                documents={documents}
+                loading={documentsLoading}
+                canUpload={canUploadDocument}
+                canDelete={canDeleteDocument}
+                tripId={tripId}
+              />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ── Expenses ── */}
         <TabsContent value="expenses">
-          <ComingSoon icon={Receipt} title="Expenses" />
+          <Card>
+            <CardHeader className="flex flex-row items-start justify-between gap-4">
+              <div>
+                <CardTitle className="text-sm font-semibold">Expenses</CardTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Track what was spent and who owes whom.
+                </p>
+              </div>
+              {canAddExpense && (
+                <Button size="sm" className="shrink-0" onClick={() => setAddExpenseOpen(true)}>
+                  <Receipt className="mr-1.5 h-3.5 w-3.5" /> Add Expense
+                </Button>
+              )}
+            </CardHeader>
+
+            <Separator />
+
+            <CardContent className="p-0">
+              <ExpenseList
+                expenses={expenses}
+                balances={balances}
+                expensesLoading={expensesLoading}
+                balancesLoading={balancesLoading}
+                canDelete={canDeleteExpense}
+                tripId={tripId}
+                currentUserId={userId}
+              />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
@@ -400,6 +465,11 @@ export default function TripDetailsPage() {
         open={deleteDestOpen}
         onClose={() => { setDeleteDestOpen(false); setSelectedDestination(null); }}
         destination={selectedDestination}
+        tripId={tripId}
+      />
+      <AddExpenseDialog
+        open={addExpenseOpen}
+        onClose={() => setAddExpenseOpen(false)}
         tripId={tripId}
       />
     </div>

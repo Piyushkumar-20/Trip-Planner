@@ -1,0 +1,34 @@
+import { v2 as cloudinary } from "cloudinary";
+import { uploadOnCloudinary } from "../../common/config/cloudinary.js";
+import ApiError from "../../common/utils/api-error.js";
+import Document from "./document.model.js";
+
+const uploadDocument = async ({ tripId, filePath, fileName, currentUserId }) => {
+  const result = await uploadOnCloudinary(filePath);
+  if (!result) throw ApiError.badRequest("Upload failed");
+
+  return await Document.create({
+    tripId,
+    name: fileName,
+    url: result.secure_url,
+    publicId: result.public_id,
+    uploadedBy: currentUserId,
+  });
+};
+
+const getAllDocuments = async ({ tripId }) => {
+  return await Document.find({ tripId })
+    .populate("uploadedBy", "fullName email")
+    .sort({ createdAt: -1 });
+};
+
+const deleteDocument = async ({ docId, tripId }) => {
+  const doc = await Document.findOne({ _id: docId, tripId });
+  if (!doc) throw ApiError.notFound("Document not found!");
+
+  await cloudinary.uploader.destroy(doc.publicId, { resource_type: "raw" });
+  await doc.deleteOne();
+  return doc;
+};
+
+export { uploadDocument, getAllDocuments, deleteDocument };

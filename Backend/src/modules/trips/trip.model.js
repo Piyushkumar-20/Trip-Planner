@@ -33,6 +33,8 @@ const tripSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+
+    coverImage: { type: String, default: null },
   },
   { timestamps: true },
 );

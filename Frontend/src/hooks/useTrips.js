@@ -15,10 +15,10 @@ export const useCreateTrip = (onSuccess) => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data) => tripService.create(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["trips"] });
       toast.success("Trip created successfully");
-      onSuccess?.();
+      onSuccess?.(data);
     },
     onError: (err) =>
       toast.error(err?.response?.data?.message || "Failed to create trip"),
@@ -28,12 +28,11 @@ export const useCreateTrip = (onSuccess) => {
 export const useUpdateTrip = (onSuccess) => {
   const qc = useQueryClient();
   return useMutation({
-    // Expects { tripId, ...fields }
     mutationFn: ({ tripId, ...data }) => tripService.update(tripId, data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["trips"] });
       toast.success("Trip updated successfully");
-      onSuccess?.();
+      onSuccess?.(data);
     },
     onError: (err) =>
       toast.error(err?.response?.data?.message || "Failed to update trip"),

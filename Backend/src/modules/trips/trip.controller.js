@@ -1,5 +1,7 @@
 import * as tripService from "./trip.service.js";
 import ApiResponse from "../../common/utils/api-response.js";
+import ApiError from "../../common/utils/api-error.js";
+import { uploadOnCloudinary } from "../../common/config/cloudinary.js";
 
 const createTrip = async (req, res) => {
   const trip = await tripService.createTrip({
@@ -27,4 +29,18 @@ const deletetrip = async (req, res) => {
   ApiResponse.ok(res, "Trip Deleted!", trip);
 };
 
-export { createTrip, getAlltrip, updateTrip, deletetrip };
+const uploadCover = async (req, res) => {
+  if (!req.file) throw ApiError.badRequest("No file uploaded");
+
+  const result = await uploadOnCloudinary(req.file.path);
+  if (!result) throw ApiError.badRequest("Upload failed");
+
+  const trip = await tripService.updateTrip({
+    tripId: req.params.tripId,
+    updates: { coverImage: result.secure_url },
+  });
+
+  ApiResponse.ok(res, "Cover image uploaded", trip);
+};
+
+export { createTrip, getAlltrip, updateTrip, deletetrip, uploadCover };

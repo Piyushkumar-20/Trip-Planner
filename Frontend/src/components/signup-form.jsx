@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input"
 
 export function SignupForm({ className, ...props }) {
-  const { register } = useAuth()
+  const { register, login } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ fullName: "", email: "", password: "", confirmPassword: "" })
   const [error, setError] = useState("")
@@ -38,7 +38,8 @@ export function SignupForm({ className, ...props }) {
     setLoading(true)
     try {
       await register({ fullName: form.fullName, email: form.email, password: form.password })
-      navigate("/login")
+      await login({ email: form.email, password: form.password })
+      navigate("/dashboard")
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Please try again.")
     } finally {

@@ -29,6 +29,14 @@ router.get(
 );
 
 router.get(
+  "/:tripId/expenses/balances",
+  authenticate,
+  loadTripRole,
+  requireRole("Owner", "Editor", "Viewer"),
+  controller.getTripBalances,
+);
+
+router.get(
   "/:tripId/expenses/:expenseId",
   authenticate,
   loadTripRole,
@@ -51,14 +59,6 @@ router.delete(
   loadTripRole,
   requireRole("Owner"),
   controller.deleteExpense,
-);
-
-router.get(
-  "/:tripId/expenses/balances",
-  authenticate,
-  loadTripRole,
-  requireRole("Owner", "Editor", "Viewer"),
-  controller.getTripBalances,
 );
 
 export default router

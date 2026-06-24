@@ -64,8 +64,12 @@ function AppSidebar() {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/login");
+    navigate("/");
+    try {
+      await logout();
+    } catch {
+      localStorage.removeItem("accessToken");
+    }
   };
 
   const initials = user?.fullName

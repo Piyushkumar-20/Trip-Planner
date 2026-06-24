@@ -4,6 +4,7 @@ import authenticate from "../auth/auth.middleware.js";
 import { loadTripRole, requireRole } from "../../common/middleware/authorize.js";
 import * as controller from "./trip.controller.js";
 import CreateTripDto from "./dto/create-trip.dto.js";
+import { upload } from "../../common/middleware/upload.js";
 
 const router = Router();
 
@@ -24,6 +25,15 @@ router.delete(
   loadTripRole,
   requireRole("Owner"),
   controller.deletetrip,
+);
+
+router.patch(
+  "/:tripId/cover",
+  upload.single("cover"),
+  authenticate,
+  loadTripRole,
+  requireRole("Owner", "Editor"),
+  controller.uploadCover,
 );
 
 export default router;
