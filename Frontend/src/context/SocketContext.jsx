@@ -12,7 +12,7 @@ export function SocketProvider({ children }) {
 
     let active = true;
 
-    const newSocket = io("http://localhost:4000", {
+    const newSocket = io("https://tripsync-uzg1.onrender.com", {
       auth: (cb) => cb({ token: `Bearer ${localStorage.getItem("accessToken")}` }),
     });
 
