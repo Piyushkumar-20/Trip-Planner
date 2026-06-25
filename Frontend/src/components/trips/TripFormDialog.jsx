@@ -20,12 +20,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCreateTrip, useUpdateTrip } from "@/hooks/useTrips";
 import { tripService } from "@/services/tripService";
 
 export default function TripFormDialog({ open, onClose, trip }) {
   const isEdit   = !!trip;
   const imageRef = useRef(null);
+  const qc       = useQueryClient();
 
   const [startDate,    setStartDate]    = useState(null);
   const [endDate,      setEndDate]      = useState(null);
@@ -56,6 +58,7 @@ export default function TripFormDialog({ open, onClose, trip }) {
     const fd = new FormData();
     fd.append("cover", coverFile);
     await tripService.uploadCover(tripId, fd);
+    qc.invalidateQueries({ queryKey: ["trips"] });
   };
 
   const handleImageChange = (e) => {

@@ -3,6 +3,7 @@ import { Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTrips } from "@/hooks/useTrips";
 import { useMembers } from "@/hooks/useMembers";
+import { useTripSocket } from "@/hooks/useTripSocket";
 import { can } from "@/lib/rbac";
 import MemberTable from "@/components/members/MemberTable";
 import AddMemberDialog from "@/components/members/AddMemberDialog";
@@ -21,6 +22,7 @@ import {
 import { UserPlus } from "lucide-react";
 
 function MembersContent({ tripId, canManageMembers }) {
+  useTripSocket(tripId);
   const { data: members, isLoading } = useMembers(tripId);
   const [addOpen, setAddOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
