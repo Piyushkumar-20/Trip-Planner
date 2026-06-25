@@ -32,7 +32,7 @@ const register = async ({ fullName, email, password }) => {
   });
 
   try {
-    await sendVerificationEmail(rawToken, email); // Email gets the RAW token
+    await sendVerificationEmail(email, rawToken);
   } catch (error) {
     console.error("Failed to send verification email:", error.message);
   }
@@ -151,7 +151,7 @@ const forgetPassword = async (email) => {
   await user.save();
 
   try {
-    await sendResetPasswordEmail(rawToken, email);
+    await sendResetPasswordEmail(email, rawToken);
   } catch (error) {
     console.error("Failed to send reset email:", error.message);
   }

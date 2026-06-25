@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT) || 587,
+  secure: false,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -37,4 +38,40 @@ const sendResetPasswordEmail = async (email, token) => {
   );
 };
 
-export  {sendVerificationEmail, sendResetPasswordEmail}
+const sendMemberAddedEmail = async (toEmail, toName, tripTitle, inviterName) => {
+  const url = `${process.env.CLIENT_URL}/trips`;
+  await sendEmail(
+    toEmail,
+    `You have been added to "${tripTitle}" on TripSync`,
+    `
+    <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;background:#f9f9f9;border-radius:10px;">
+      <h2 style="margin:0 0 8px;color:#1B231C;">You are going on a trip!</h2>
+      <p style="color:#555;margin:0 0 20px;">Hi ${toName}, <strong>${inviterName}</strong> has added you to <strong>${tripTitle}</strong> on TripSync.</p>
+      <a href="${url}" style="display:inline-block;background:#FF6B35;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;">View Trip</a>
+      <p style="color:#aaa;font-size:12px;margin-top:28px;">If you did not expect this, you can ignore this email.</p>
+    </div>
+    `
+  );
+};
+
+const sendExpenseAddedEmail = async (toEmail, toName, tripTitle, expenseTitle, amount, paidBy) => {
+  const url = `${process.env.CLIENT_URL}/trips`;
+  await sendEmail(
+    toEmail,
+    `New expense added to "${tripTitle}"`,
+    `
+    <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;background:#f9f9f9;border-radius:10px;">
+      <h2 style="margin:0 0 8px;color:#1B231C;">New expense logged</h2>
+      <p style="color:#555;margin:0 0 8px;">Hi ${toName}, a new expense has been added to <strong>${tripTitle}</strong>.</p>
+      <div style="background:#fff;border-radius:8px;padding:16px 20px;margin:16px 0;border:1px solid #eee;">
+        <p style="margin:0 0 6px;font-weight:600;color:#1B231C;">${expenseTitle}</p>
+        <p style="margin:0;color:#FF6B35;font-family:monospace;font-size:18px;">&#8377;${amount}</p>
+        <p style="margin:6px 0 0;color:#888;font-size:13px;">Paid by ${paidBy}</p>
+      </div>
+      <a href="${url}" style="display:inline-block;background:#FF6B35;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;">View Trip</a>
+    </div>
+    `
+  );
+};
+
+export { sendVerificationEmail, sendResetPasswordEmail, sendMemberAddedEmail, sendExpenseAddedEmail };

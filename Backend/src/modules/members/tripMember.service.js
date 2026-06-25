@@ -1,10 +1,17 @@
 import Member from "./tripMembers.model.js";
 import User from "../users/user.model.js";
+import Trip from "../trips/trip.model.js";
 import ApiError from "../../common/utils/api-error.js";
 import { io } from "../../app.js";
+import { sendMemberAddedEmail } from "../../common/config/email.js";
 
-const addMember = async ({ tripId, email, role }) => {
-  const user = await User.findOne({ email });
+const addMember = async ({ tripId, email, role, currentUserId }) => {
+  const [user, trip, inviter] = await Promise.all([
+    User.findOne({ email }),
+    Trip.findById(tripId),
+    User.findById(currentUserId),
+  ]);
+
   if (!user) throw ApiError.notFound("User not found!");
 
   const existing = await Member.findOne({ tripId, userId: user._id });
@@ -12,6 +19,13 @@ const addMember = async ({ tripId, email, role }) => {
 
   const member = await Member.create({ tripId, userId: user._id, role });
   io.to(`trip_${tripId}`).emit("member:added", member);
+
+  if (trip && inviter) {
+    sendMemberAddedEmail(user.email, user.fullName, trip.title, inviter.fullName).catch(
+      (err) => console.error("Failed to send member-added email:", err.message)
+    );
+  }
+
   return member;
 };
 
