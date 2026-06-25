@@ -64,19 +64,11 @@ export default function TripCard({
       className="group flex rounded-2xl border bg-card transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer overflow-hidden"
       onClick={() => navigate(`/trips/${trip._id}`, { state: { trip } })}
     >
-      {/* Cover image */}
+      {/* Cover placeholder */}
       <div className="shrink-0 w-52 h-52 sm:w-60 sm:h-60 relative overflow-hidden">
-        {trip.coverImage ? (
-          <img
-            src={trip.coverImage}
-            alt={trip.title}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="h-full w-full bg-linear-to-br from-primary/20 via-primary/10 to-muted flex items-center justify-center">
-            <MapPin className="h-12 w-12 text-primary/30" />
-          </div>
-        )}
+        <div className="h-full w-full bg-linear-to-br from-primary/20 via-primary/10 to-muted flex items-center justify-center">
+          <MapPin className="h-12 w-12 text-primary/30" />
+        </div>
       </div>
 
       {/* Content */}
