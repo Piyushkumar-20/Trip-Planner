@@ -35,6 +35,7 @@ import { Separator } from "@/components/ui/separator";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/context/AuthContext";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -158,6 +159,9 @@ export default function MainLayout() {
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="h-4" />
             <span className="text-sm text-muted-foreground">TripSync</span>
+            <div className="ml-auto">
+              <ThemeToggle />
+            </div>
           </header>
           <div className="flex-1 overflow-auto p-6">
             <Outlet />
