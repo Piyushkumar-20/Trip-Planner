@@ -237,7 +237,7 @@ export default function TripDetailsPage() {
       </Card>
 
       {/* ── Content tabs ── */}
-      <Tabs defaultValue="members" className="space-y-4">
+      <Tabs defaultValue={state?.activeTab ?? "members"} className="space-y-4">
         <TabsList>
           <TabsTrigger value="members">
             Members{memberCount !== null ? ` (${memberCount})` : ""}

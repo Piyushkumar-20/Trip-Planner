@@ -3,6 +3,7 @@ import { Map, PlusCircle, Search } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTrips } from "@/hooks/useTrips";
 import { useMembers } from "@/hooks/useMembers";
+import { useDestinations } from "@/hooks/useDestinations";
 import { can } from "@/lib/rbac";
 import TripCard from "@/components/trips/TripCard";
 import TripFormDialog from "@/components/trips/TripFormDialog";
@@ -16,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 function TripCardWithMembers({ trip, onEdit, onDelete }) {
   const { user } = useAuth();
   const { data: members } = useMembers(trip._id);
+  const { data: destinations } = useDestinations(trip._id);
 
   const userId = user?._id?.toString() ?? user?.id?.toString();
   const isOwner = (trip.owner?._id ?? trip.owner)?.toString() === userId;
@@ -28,6 +30,7 @@ function TripCardWithMembers({ trip, onEdit, onDelete }) {
     <TripCard
       trip={trip}
       memberCount={members?.length ?? 0}
+      destinationCount={destinations?.length ?? 0}
       onEdit={onEdit}
       onDelete={onDelete}
       canEdit={can(currentRole, "editTrip")}
@@ -74,9 +77,9 @@ export default function TripsPage() {
       </div>
 
       {isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Skeleton key={i} className="h-48 w-full rounded-xl" />
+        <div className="flex flex-col gap-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-60 w-full rounded-2xl" />
           ))}
         </div>
       ) : trips.length === 0 ? (
@@ -98,7 +101,7 @@ export default function TripsPage() {
           }
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-col gap-4">
           {trips.map((trip) => (
             <TripCardWithMembers
               key={trip._id}
