@@ -73,7 +73,7 @@ export default function TripCard({
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="h-full w-full bg-gradient-to-br from-primary/20 via-primary/10 to-muted flex items-center justify-center">
+          <div className="h-full w-full bg-linear-to-br from-primary/20 via-primary/10 to-muted flex items-center justify-center">
             <MapPin className="h-12 w-12 text-primary/30" />
           </div>
         )}
