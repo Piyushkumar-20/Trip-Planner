@@ -281,6 +281,7 @@ export default function LandingPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
           <a href="#features" className="tsl-nav-link" style={{ color: C.muted, fontSize: 14, textDecoration: "none", fontFamily: "'Inter', sans-serif", transition: "color 0.15s ease" }}>Features</a>
           <a href="#how"      className="tsl-nav-link" style={{ color: C.muted, fontSize: 14, textDecoration: "none", fontFamily: "'Inter', sans-serif", transition: "color 0.15s ease" }}>How it works</a>
+          <a href="/docs"     className="tsl-nav-link" style={{ color: C.muted, fontSize: 14, textDecoration: "none", fontFamily: "'Inter', sans-serif", transition: "color 0.15s ease" }}>Docs</a>
 
           {user ? (
             <button className="tsl-hover-lift" style={btnNavPrimary} onClick={goDashboard}>

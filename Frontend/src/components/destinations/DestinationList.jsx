@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { CalendarDays, Clock, DollarSign, Pencil, Trash2 } from "lucide-react";
+import { CalendarDays, Clock, IndianRupee, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -49,7 +49,7 @@ function DestinationCard({ destination, canEdit, canDelete, onEdit, onDelete }) 
           </span>
           <span className="opacity-30">·</span>
           <span className="flex items-center gap-1">
-            <DollarSign className="h-3 w-3 shrink-0" />
+            <IndianRupee className="h-3 w-3 shrink-0" />
             {destination.estimatedCost}
           </span>
         </div>

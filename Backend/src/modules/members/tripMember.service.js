@@ -1,6 +1,7 @@
 import Member from "./tripMembers.model.js";
 import User from "../users/user.model.js";
 import ApiError from "../../common/utils/api-error.js";
+import { io } from "../../app.js";
 
 const addMember = async ({ tripId, email, role }) => {
   const user = await User.findOne({ email });
@@ -9,7 +10,9 @@ const addMember = async ({ tripId, email, role }) => {
   const existing = await Member.findOne({ tripId, userId: user._id });
   if (existing) throw ApiError.conflict("User is already a member of this trip");
 
-  return await Member.create({ tripId, userId: user._id, role });
+  const member = await Member.create({ tripId, userId: user._id, role });
+  io.to(`trip_${tripId}`).emit("member:added", member);
+  return member;
 };
 
 const getAllMember = async ({ tripId }) => {
@@ -32,12 +35,14 @@ const updateMember = async ({ tripId, memberId, role }) => {
     { new: true, runValidators: true },
   );
   if (!member) throw ApiError.notFound("Member not found!");
+  io.to(`trip_${tripId}`).emit("member:updated", member);
   return member;
 };
 
 const deleteMember = async ({ tripId, memberId }) => {
   const member = await Member.findOneAndDelete({ _id: memberId, tripId });
   if (!member) throw ApiError.notFound("Member not found!");
+  io.to(`trip_${tripId}`).emit("member:deleted", { memberId });
   return member;
 };
 

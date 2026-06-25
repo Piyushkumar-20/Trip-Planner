@@ -12,7 +12,13 @@ const authenticate = async (req, res, next) => {
     throw ApiError.unauthorized("Not Authenticated");
   }
 
-  const decoded = verifyAccessToken(token);
+  let decoded;
+  try {
+    decoded = verifyAccessToken(token);
+  } catch {
+    throw ApiError.unauthorized("Not Authenticated");
+  }
+
   const user = await User.findById(decoded.id);
   if (!user) {
     throw ApiError.unauthorized("Not Authenticated");

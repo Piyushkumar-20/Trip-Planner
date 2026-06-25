@@ -19,6 +19,7 @@ import { useMembers } from "@/hooks/useMembers";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useExpenses, useExpenseBalances } from "@/hooks/useExpenses";
 import { useDocuments } from "@/hooks/useDocuments";
+import { useTripSocket } from "@/hooks/useTripSocket";
 import { can } from "@/lib/rbac";
 import TripFormDialog from "@/components/trips/TripFormDialog";
 import DeleteTripDialog from "@/components/trips/DeleteTripDialog";
@@ -92,6 +93,8 @@ export default function TripDetailsPage() {
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [deleteDestOpen, setDeleteDestOpen]           = useState(false);
   const [addExpenseOpen, setAddExpenseOpen]           = useState(false);
+
+  useTripSocket(tripId);
 
   const userId = user?._id?.toString() ?? user?.id?.toString();
   const isOwner = (trip?.owner?._id ?? trip?.owner)?.toString() === userId;

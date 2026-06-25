@@ -1,5 +1,6 @@
 import ApiError from "../../common/utils/api-error.js";
 import Destination from "./destination.model.js";
+import { io } from "../../app.js";
 
 const createDestination = async ({
   tripId,
@@ -10,7 +11,7 @@ const createDestination = async ({
   estimatedCost,
   currentUserId,
 }) => {
-  return await Destination.create({
+  const destination = await Destination.create({
     tripId,
     description,
     name,
@@ -19,6 +20,9 @@ const createDestination = async ({
     estimatedCost,
     createdBy: currentUserId,
   });
+
+  io.to(`trip_${tripId}`).emit("destination:created", destination);
+  return destination;
 };
 
 const getAllDestination = async ({ tripId }) => {
@@ -55,11 +59,14 @@ const updateDestination = async ({
   destination.visitDate = visitDate ?? destination.visitDate;
 
   await destination.save();
+  io.to(`trip_${tripId}`).emit("destination:updated", destination);
   return destination;
 };
 
 const deleteDestination = async ({ destinationId, tripId }) => {
-  return await Destination.findOneAndDelete({ _id: destinationId, tripId });
+  const destination = await Destination.findOneAndDelete({ _id: destinationId, tripId });
+  if (destination) io.to(`trip_${tripId}`).emit("destination:deleted", { destinationId });
+  return destination;
 };
 
 export {

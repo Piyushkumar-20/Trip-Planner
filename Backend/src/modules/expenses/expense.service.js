@@ -1,6 +1,7 @@
 import Expenses from "./expenses.model.js";
 import ApiError from "../../common/utils/api-error.js";
 import Member from "../members/tripMembers.model.js";
+import { io } from "../../app.js";
 
 const createExpense = async ({ title, tripId, note, amount, category, currentUserId }) => {
   const totalMember = await Member.countDocuments({ tripId });
@@ -8,7 +9,7 @@ const createExpense = async ({ title, tripId, note, amount, category, currentUse
     throw ApiError.notFound("No Member found!");
   }
 
-  return await Expenses.create({
+  const expense = await Expenses.create({
     title,
     tripId,
     note,
@@ -17,6 +18,9 @@ const createExpense = async ({ title, tripId, note, amount, category, currentUse
     category,
     paidBy: currentUserId,
   });
+
+  io.to(`trip_${tripId}`).emit("expense:created", expense);
+  return expense;
 };
 
 const getAllExpense = async ({ tripId }) => {
@@ -49,12 +53,14 @@ const updateExpense = async ({ tripId, expenseId, title, note, amount, category 
   }
 
   await expense.save();
+  io.to(`trip_${tripId}`).emit("expense:updated", expense);
   return expense;
 };
 
 const deleteExpense = async ({ tripId, expenseId }) => {
   const expense = await Expenses.findOneAndDelete({ _id: expenseId, tripId });
   if (!expense) throw ApiError.notFound("Expense not found!");
+  io.to(`trip_${tripId}`).emit("expense:deleted", { expenseId });
   return expense;
 };
 
