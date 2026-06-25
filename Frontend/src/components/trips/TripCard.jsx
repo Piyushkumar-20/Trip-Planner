@@ -61,114 +61,104 @@ export default function TripCard({
 
   return (
     <div
-      className="group flex rounded-2xl border bg-card transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer overflow-hidden"
+      className="group rounded-2xl border bg-card px-6 py-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
       onClick={() => navigate(`/trips/${trip._id}`, { state: { trip } })}
     >
-      {/* Cover placeholder */}
-      <div className="shrink-0 w-52 h-52 sm:w-60 sm:h-60 relative overflow-hidden">
-        <div className="h-full w-full bg-linear-to-br from-primary/20 via-primary/10 to-muted flex items-center justify-center">
-          <MapPin className="h-12 w-12 text-primary/30" />
+      {/* Top row: title + status badge + actions */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h3 className="text-xl font-bold leading-tight truncate">{trip.title}</h3>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="flex flex-1 flex-col justify-between p-6 min-w-0">
-        {/* Top: title + badge */}
-        <div className="flex items-start justify-between gap-4">
-          <h3 className="text-2xl font-bold leading-tight line-clamp-1">
-            {trip.title}
-          </h3>
+        <div className="flex items-center gap-2 shrink-0">
           <Badge
             variant={status.variant}
-            className="shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full text-sm"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-sm"
           >
             <CalendarDays className="h-3.5 w-3.5" />
             {status.label}
           </Badge>
-        </div>
 
-        {/* Description */}
-        {trip.description && (
-          <p className="mt-3 text-muted-foreground line-clamp-3 text-base leading-relaxed">
-            {trip.description}
-          </p>
+          {(canEdit || canDelete) && (
+            <div
+              className="flex items-center gap-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {canEdit && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => onEdit(trip)}
+                  title="Edit trip"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+              )}
+              {canDelete && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                  onClick={() => onDelete(trip)}
+                  title="Delete trip"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Description */}
+      {trip.description && (
+        <p className="mt-2 text-muted-foreground text-sm line-clamp-2 leading-relaxed">
+          {trip.description}
+        </p>
+      )}
+
+      <Separator className="my-4" />
+
+      {/* Meta row */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <MetaItem icon={CalendarDays} label={dateLabel} />
+        <Dot />
+        <MetaItem icon={Clock} label={`${days} day${days !== 1 ? "s" : ""}`} />
+        <Dot />
+        <MetaItem icon={User} label={ownerName} />
+        <Dot />
+        <MetaItem icon={Users} label={`${memberCount} member${memberCount !== 1 ? "s" : ""}`} />
+        {destinationCount > 0 && (
+          <>
+            <Dot />
+            <MetaItem icon={MapPin} label={`${destinationCount} destination${destinationCount !== 1 ? "s" : ""}`} />
+          </>
         )}
+      </div>
 
-        <div className="mt-4 space-y-3">
-          <Separator />
-
-          {/* Meta row + actions */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <MetaItem icon={CalendarDays} label={dateLabel} />
-            <Dot />
-            <MetaItem icon={Clock} label={`${days} day${days !== 1 ? "s" : ""}`} />
-            <Dot />
-            <MetaItem icon={User} label={ownerName} />
-            <Dot />
-            <MetaItem icon={Users} label={`${memberCount} member${memberCount !== 1 ? "s" : ""}`} />
-            {destinationCount > 0 && (
-              <>
-                <Dot />
-                <MetaItem icon={MapPin} label={`${destinationCount} destination${destinationCount !== 1 ? "s" : ""}`} />
-              </>
-            )}
-
-            {/* Action buttons */}
-            {(canEdit || canDelete) && (
-              <div
-                className="ml-auto flex items-center gap-1"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {canEdit && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() => onEdit(trip)}
-                    title="Edit trip"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-                {canDelete && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                    onClick={() => onDelete(trip)}
-                    title="Delete trip"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Quick-access tab buttons */}
-          <div
-            className="flex items-center gap-1 flex-wrap"
-            onClick={(e) => e.stopPropagation()}
+      {/* Quick-access tab buttons */}
+      <div
+        className="mt-3 flex items-center gap-1 flex-wrap"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {[
+          { label: "Members", icon: Users, tab: "members" },
+          { label: "Destinations", icon: MapPin, tab: "destinations" },
+          { label: "Expenses", icon: Receipt, tab: "expenses" },
+          { label: "Documents", icon: FileText, tab: "documents" },
+        ].map(({ label, icon: Icon, tab }) => (
+          <button
+            key={tab}
+            onClick={() =>
+              navigate(`/trips/${trip._id}`, { state: { trip, activeTab: tab } })
+            }
+            className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           >
-            {[
-              { label: "Members", icon: Users, tab: "members" },
-              { label: "Destinations", icon: MapPin, tab: "destinations" },
-              { label: "Expenses", icon: Receipt, tab: "expenses" },
-              { label: "Documents", icon: FileText, tab: "documents" },
-            ].map(({ label, icon: Icon, tab }) => (
-              <button
-                key={tab}
-                onClick={() =>
-                  navigate(`/trips/${trip._id}`, { state: { trip, activeTab: tab } })
-                }
-                className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-              >
-                <Icon className="h-3 w-3" />
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
+            <Icon className="h-3 w-3" />
+            {label}
+          </button>
+        ))}
       </div>
     </div>
   );
