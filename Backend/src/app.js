@@ -1,4 +1,5 @@
 import cookieParser from "cookie-parser";
+import compression from "compression";
 import cors from "cors";
 import express from "express";
 import http from "node:http"
@@ -11,6 +12,8 @@ import expenseRoute from "./modules/expenses/expense.routes.js";
 import documentRoute from "./modules/documents/document.routes.js";
 
 const app = express();
+app.use(compression());
+app.get("/health", (_req, res) => res.json({ status: "ok" }));
 app.use(
   cors({
     origin: process.env.CLIENT_URL,

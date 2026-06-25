@@ -75,7 +75,7 @@ export default function TripDetailsPage() {
   const { user } = useAuth();
 
   const { data: allTrips, isLoading: tripsLoading } = useTrips();
-  const trip = state?.trip ?? allTrips?.find((t) => t._id === tripId);
+  const trip = allTrips?.find((t) => t._id === tripId) ?? state?.trip;
 
   const { data: members, isLoading: membersLoading } = useMembers(tripId);
   const { data: destinations, isLoading: destinationsLoading } = useDestinations(tripId);

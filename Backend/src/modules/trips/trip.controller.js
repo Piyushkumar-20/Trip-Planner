@@ -2,6 +2,7 @@ import * as tripService from "./trip.service.js";
 import ApiResponse from "../../common/utils/api-response.js";
 import ApiError from "../../common/utils/api-error.js";
 import { uploadOnCloudinary } from "../../common/config/cloudinary.js";
+import { io } from "../../app.js";
 
 const createTrip = async (req, res) => {
   const trip = await tripService.createTrip({
@@ -21,6 +22,7 @@ const updateTrip = async (req, res) => {
     tripId: req.params.tripId,
     updates: req.body,
   });
+  io.to(`trip_${req.params.tripId}`).emit("trip:updated", trip);
   ApiResponse.ok(res, "Trip Updated", trip);
 };
 

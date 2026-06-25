@@ -1,5 +1,6 @@
 import * as memberService from "./tripMember.service.js";
 import ApiResponse from "../../common/utils/api-response.js";
+import { io } from "../../app.js";
 
 const addMember = async (req, res) => {
   const member = await memberService.addMember({
@@ -7,6 +8,7 @@ const addMember = async (req, res) => {
     tripId: req.params.tripId,
     currentUserId: req.user.id,
   });
+  io.to(`trip_${req.params.tripId}`).emit("member:added", member);
   ApiResponse.created(res, "Member added successfully!", member);
 };
 
@@ -29,6 +31,7 @@ const updateMember = async (req, res) => {
     tripId: req.params.tripId,
     memberId: req.params.memberId,
   });
+  io.to(`trip_${req.params.tripId}`).emit("member:updated", member);
   ApiResponse.ok(res, "Member Updated Successfully!", member);
 };
 
@@ -37,6 +40,7 @@ const deleteMember = async (req, res) => {
     tripId: req.params.tripId,
     memberId: req.params.memberId,
   });
+  io.to(`trip_${req.params.tripId}`).emit("member:deleted", { memberId: req.params.memberId });
   ApiResponse.ok(res, "Member Removed Successfully!");
 };
 

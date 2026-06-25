@@ -1,5 +1,6 @@
 import * as destinationService from "./destination.service.js";
 import ApiResponse from "../../common/utils/api-response.js";
+import { io } from "../../app.js";
 
 const createDestination = async (req, res) => {
   const destination = await destinationService.createDestination({
@@ -7,6 +8,7 @@ const createDestination = async (req, res) => {
     tripId: req.params.tripId,
     currentUserId: req.user.id,
   });
+  io.to(`trip_${req.params.tripId}`).emit("destination:created", destination);
   ApiResponse.created(res, "Destination Created Successfully!", destination);
 };
 
@@ -31,6 +33,7 @@ const updateDestination = async (req, res) => {
     tripId: req.params.tripId,
     destinationId: req.params.destinationId,
   });
+  io.to(`trip_${req.params.tripId}`).emit("destination:updated", destination);
   ApiResponse.ok(res, "Destination updated Successfull!", destination);
 };
 
@@ -39,6 +42,7 @@ const deleteDestination = async (req, res) => {
     tripId: req.params.tripId,
     destinationId: req.params.destinationId,
   });
+  io.to(`trip_${req.params.tripId}`).emit("destination:deleted", { destinationId: req.params.destinationId });
   ApiResponse.ok(res, "Destination Removed Successfully!");
 };
 

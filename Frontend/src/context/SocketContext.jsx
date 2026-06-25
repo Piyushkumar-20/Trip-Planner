@@ -12,7 +12,7 @@ export function SocketProvider({ children }) {
 
     let active = true;
 
-    const newSocket = io("https://tripsync-uzg1.onrender.com", {
+    const newSocket = io(import.meta.env.VITE_API_URL, {
       auth: (cb) => cb({ token: `Bearer ${localStorage.getItem("accessToken")}` }),
     });
 
