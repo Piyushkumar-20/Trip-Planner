@@ -47,6 +47,23 @@ const register = async ({ fullName, email, password }) => {
   return userObj;
 };
 
+const resendVerificationEmail = async (email) => {
+  const user = await User.findOne({ email }).select("+verificationToken");
+  if (!user) {
+    throw ApiError.unauthorized("User does not exist");
+  }
+
+  if (user.isVerified) {
+    throw ApiError.conflict("Email is already verified");
+  }
+
+  const { rawToken, hashedToken } = generateVerificationToken();
+  user.verificationToken = hashedToken;
+  await user.save({ validateBeforeSave: false });
+
+  await sendVerificationEmail(email, rawToken);
+};
+
 const login = async ({ email, password }) => {
   const user = await User.findOne({ email }).select("+password");
   if (!user) {
@@ -58,11 +75,11 @@ const login = async ({ email, password }) => {
     throw ApiError.unauthorized("Invalid Email or Password");
   }
 
-  // if (!user.isVerified) {
-  //   throw ApiError.unauthorized(
-  //     "Please verify your Email but verification link",
-  //   );
-  // }
+  if (!user.isVerified) {
+    throw ApiError.unauthorized(
+      "Please verify your Email but verification link",
+    );
+  }
 
   const refreshToken = generateRefreshToken({ id: user._id });
   const accessToken = generateAccessToken({ id: user._id });
@@ -254,6 +271,7 @@ const googleLogin = async ({ idToken }) => {
 };
 export {
   register,
+  resendVerificationEmail,
   login,
   googleLogin,
   refresh,

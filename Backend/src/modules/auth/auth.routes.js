@@ -10,6 +10,7 @@ import ResetPasswordDto from "./dto/reset-password.dto.js";
 const router = Router();
 
 router.post("/register", validate(RegisterDto), controller.register);
+router.post("/resend-verification", controller.resendVerificationEmail);
 router.post("/login", validate(LoginDto), controller.login);
 router.post("/refresh-token", controller.refreshToken);
 router.post("/logout", authenticate, controller.logout);

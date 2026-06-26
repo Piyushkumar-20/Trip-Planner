@@ -23,10 +23,12 @@ import { initializeGoogle, promptGoogleSignIn } from "@/lib/google";
 
 
 export function LoginForm({ className, ...props }) {
-  const { login, googleLogin } = useAuth();
+  const { login, googleLogin, resendVerificationEmail } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [canResendVerification, setCanResendVerification] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) =>
@@ -35,14 +37,41 @@ export function LoginForm({ className, ...props }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
+    setCanResendVerification(false);
     setLoading(true);
     try {
       await login({ email: form.email, password: form.password });
       navigate("/dashboard");
     } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        "Login failed. Please check your credentials.";
+      setError(message);
+      setCanResendVerification(message.toLowerCase().includes("verify"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setError("");
+    setSuccess("");
+
+    if (!form.email) {
+      setError("Enter your email first, then resend the verification email.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await resendVerificationEmail(form.email);
+      setSuccess("Verification email sent. Please check your inbox.");
+      setCanResendVerification(false);
+    } catch (err) {
       setError(
         err.response?.data?.message ||
-          "Login failed. Please check your credentials.",
+          "Could not send verification email. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -51,6 +80,8 @@ export function LoginForm({ className, ...props }) {
 
   const handleGoogleLogin = async () => {
     setError("");
+    setSuccess("");
+    setCanResendVerification(false);
     setLoading(true);
 
     try {
@@ -153,6 +184,17 @@ export function LoginForm({ className, ...props }) {
                 />
               </Field>
               {error && <FieldError>{error}</FieldError>}
+              {success && <FieldDescription>{success}</FieldDescription>}
+              {canResendVerification && (
+                <Button
+                  variant="outline"
+                  type="button"
+                  disabled={loading}
+                  onClick={handleResendVerification}
+                >
+                  Send Verification Mail
+                </Button>
+              )}
               <Field>
                 <Button type="submit" disabled={loading}>
                   {loading ? "Logging in..." : "Login"}

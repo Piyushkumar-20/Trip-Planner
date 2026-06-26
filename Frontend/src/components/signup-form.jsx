@@ -20,10 +20,11 @@ import {
 import { Input } from "@/components/ui/input"
 
 export function SignupForm({ className, ...props }) {
-  const { register, login } = useAuth()
+  const { register } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ fullName: "", email: "", password: "", confirmPassword: "" })
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
@@ -31,6 +32,7 @@ export function SignupForm({ className, ...props }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
+    setSuccess("")
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match.")
       return
@@ -38,8 +40,8 @@ export function SignupForm({ className, ...props }) {
     setLoading(true)
     try {
       await register({ fullName: form.fullName, email: form.email, password: form.password })
-      await login({ email: form.email, password: form.password })
-      navigate("/dashboard")
+      setSuccess("Account created. Please check your email to verify your account before signing in.")
+      setTimeout(() => navigate("/login"), 2000)
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Please try again.")
     } finally {
@@ -79,6 +81,7 @@ export function SignupForm({ className, ...props }) {
                 <FieldDescription>Must be at least 8 characters long.</FieldDescription>
               </Field>
               {error && <FieldError>{error}</FieldError>}
+              {success && <FieldDescription>{success}</FieldDescription>}
               <Field>
                 <Button type="submit" disabled={loading}>
                   {loading ? "Creating Account..." : "Create Account"}
