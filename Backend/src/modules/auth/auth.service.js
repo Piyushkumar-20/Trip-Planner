@@ -2,14 +2,12 @@ import crypto from "crypto";
 import ApiError from "../../common/utils/api-error.js";
 import User from "../users/user.model.js";
 import {
-  generateVerificationToken,
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
 } from "../../common/utils/jwt.utils.js";
 
 import {
-  sendVerificationEmail,
   sendResetPasswordEmail,
 } from "../../common/config/email.js";
 import { OAuth2Client } from "google-auth-library";
@@ -25,47 +23,17 @@ const register = async ({ fullName, email, password }) => {
   if (exist) {
     throw ApiError.conflict("User already Exist");
   }
-  const { rawToken, hashedToken } = generateVerificationToken();
 
   const user = await User.create({
     fullName,
     email,
     password,
-    verificationToken: hashedToken, // DB stores the HASH
   });
-
-  try {
-    await sendVerificationEmail(email, rawToken);
-  } catch (error) {
-    console.error("Failed to send verification email:", error.message);
-    await User.findByIdAndDelete(user._id);
-    throw ApiError.badRequest(
-      "Could not send verification email.",
-    );
-  }
 
   const userObj = user.toObject();
   delete userObj.password;
-  delete userObj.verificationToken;
 
   return userObj;
-};
-
-const resendVerificationEmail = async (email) => {
-  const user = await User.findOne({ email }).select("+verificationToken");
-  if (!user) {
-    throw ApiError.unauthorized("User does not exist");
-  }
-
-  if (user.isVerified) {
-    throw ApiError.conflict("Email is already verified");
-  }
-
-  const { rawToken, hashedToken } = generateVerificationToken();
-  user.verificationToken = hashedToken;
-  await user.save({ validateBeforeSave: false });
-
-  await sendVerificationEmail(email, rawToken);
 };
 
 const login = async ({ email, password }) => {
@@ -77,12 +45,6 @@ const login = async ({ email, password }) => {
   const verifyPassword = await user.comparePassword(password);
   if (!verifyPassword) {
     throw ApiError.unauthorized("Invalid Email or Password");
-  }
-
-  if (!user.isVerified) {
-    throw ApiError.unauthorized(
-      "Please verify your Email but verification link",
-    );
   }
 
   const refreshToken = generateRefreshToken({ id: user._id });
@@ -125,38 +87,6 @@ const refresh = async (token) => {
   await user.save({ validateBeforeSave: false });
 
   return { accessToken, refreshToken: newRefreshToken };
-};
-
-/* When a user registers, they get an email with a verification link containing a raw token. 
-This function validates that token and marks the account as verified. */
-const verifyEmail = async (token) => {
-  const trimmed = String(token).trim();
-
-  if (!trimmed) {
-    throw ApiError.unauthorized("Invalid or expired verification token");
-  }
-
-  const hashedToken = hashToken(trimmed); // hash what the user sent in register()
-  let user = await User.findOne({ verificationToken: hashedToken }).select(
-    "+verificationToken",
-  );
-
-  // For developers testing in postman or api testing
-  if (!user) {
-    user = await User.findOne({ verificationToken: trimmed }).select(
-      "verificationToken",
-    );
-  }
-
-  if (!user) {
-    throw ApiError.unauthorized("Invalid or expired verification token");
-  }
-
-  // update the user verified and remove verficationToken from DB
-  await User.findByIdAndUpdate(user._id, {
-    $set: { isVerified: true },
-    $unset: { verificationToken: 1 },
-  });
 };
 
 const logout = async (userId) => {
@@ -243,7 +173,6 @@ const googleLogin = async ({ idToken }) => {
       fullName: name,
       email,
       password: randomPassword,
-      isVerified: true,
       provider: "google",
       googleId,
       avatar: picture,
@@ -275,11 +204,9 @@ const googleLogin = async ({ idToken }) => {
 };
 export {
   register,
-  resendVerificationEmail,
   login,
   googleLogin,
   refresh,
-  verifyEmail,
   logout,
   forgetPassword,
   resetPassword,

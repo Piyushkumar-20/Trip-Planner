@@ -40,7 +40,7 @@ export function SignupForm({ className, ...props }) {
     setLoading(true)
     try {
       await register({ fullName: form.fullName, email: form.email, password: form.password })
-      setSuccess("Account created. Please check your email to verify your account before signing in.")
+      setSuccess("Account created. You can now sign in.")
       setTimeout(() => navigate("/login"), 2000)
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Please try again.")

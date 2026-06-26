@@ -22,11 +22,6 @@ const register = async (req, res) => {
   ApiResponse.created(res, "Account Created Succesfully!", user);
 };
 
-const resendVerificationEmail = async (req, res) => {
-  await authService.resendVerificationEmail(req.body.email);
-  ApiResponse.ok(res, "Verification email has been sent");
-};
-
 const login = async (req, res) => {
   const { user, accessToken, refreshToken } = await authService.login(req.body);
 
@@ -41,11 +36,6 @@ const refreshToken = async (req, res) => {
   res.cookie("refreshToken", newRefreshToken, cookieOptions);
 
   ApiResponse.ok(res, "Refreshed Token", { accessToken });
-};
-
-const verifyEmail = async (req, res) => {
-  await authService.verifyEmail(req.params.token);
-  ApiResponse.ok(res, "Email verified");
 };
 
 const logout = async (req, res) => {
@@ -84,13 +74,11 @@ const googleLogin = async (req, res) => {
 };
 export {
   register,
-  resendVerificationEmail,
   login,
   googleLogin,
   refreshToken,
   logout,
   forgetPassword,
-  verifyEmail,
   resetPassword,
   getMe,
 };
