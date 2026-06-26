@@ -55,15 +55,6 @@ export const promptGoogleSignIn = () =>
     }
 
     window.google.accounts.id.prompt((notification) => {
-      if (
-        notification.isNotDisplayed() ||
-        notification.isSkippedMoment() ||
-        notification.isDismissedMoment()
-      ) {
-        reject(new Error("Google sign-in was cancelled or unavailable."));
-        return;
-      }
-
-      resolve();
+      resolve(notification);
     });
   });
