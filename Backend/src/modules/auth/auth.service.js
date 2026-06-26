@@ -38,6 +38,10 @@ const register = async ({ fullName, email, password }) => {
     await sendVerificationEmail(email, rawToken);
   } catch (error) {
     console.error("Failed to send verification email:", error.message);
+    await User.findByIdAndDelete(user._id);
+    throw ApiError.badRequest(
+      "Could not send verification email.",
+    );
   }
 
   const userObj = user.toObject();

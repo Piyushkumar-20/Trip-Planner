@@ -10,7 +10,7 @@ class ApiError extends Error {
   }
 
   static badRequest(message = "Bad Request") {
-    return new ApiError(404, message);
+    return new ApiError(400, message);
   }
 
   static conflict(message = "User already Exist") {

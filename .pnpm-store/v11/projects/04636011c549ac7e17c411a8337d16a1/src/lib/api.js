@@ -6,6 +6,7 @@ const REFRESH_TOKEN_URL = "/auth/refresh-token";
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,
   withCredentials: true,
+  timeout: 20000,
 });
 
 api.interceptors.request.use((config) => {
