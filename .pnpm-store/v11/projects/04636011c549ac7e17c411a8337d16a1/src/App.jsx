@@ -1,0 +1,54 @@
+import { Navigate, Route, Routes } from "react-router-dom"
+import { useAuth } from "@/context/AuthContext"
+import LandingPage from "@/pages/LandingPage"
+import DocsPage from "@/pages/DocsPage"
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage"
+import ResetPasswordPage from "@/pages/ResetPasswordPage"
+import LoginPage from "@/pages/LoginPage"
+import RegisterPage from "@/pages/RegisterPage"
+import DashboardPage from "@/pages/DashboardPage"
+import TripsPage from "@/pages/TripsPage"
+import TripDetailsPage from "@/pages/TripDetailsPage"
+import MembersPage from "@/pages/MembersPage"
+import SettingsPage from "@/pages/SettingsPage"
+import MainLayout from "@/layouts/MainLayout"
+
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth()
+  if (loading) return null
+  return user ? children : <Navigate to="/login" replace />
+}
+
+function GuestRoute({ children }) {
+  const { user, loading } = useAuth()
+  if (loading) return null
+  return user ? <Navigate to="/dashboard" replace /> : children
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/docs" element={<DocsPage />} />
+      <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+      <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+      <Route path="/signup" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+
+      <Route
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/trips" element={<TripsPage />} />
+        <Route path="/trips/:tripId" element={<TripDetailsPage />} />
+        <Route path="/members" element={<MembersPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+      </Route>
+    </Routes>
+  )
+}

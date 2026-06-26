@@ -1,24 +1,26 @@
-<div align="center">
 
-<img src="https://img.shields.io/badge/TripSync-FF6B35?style=for-the-badge&logo=airplane&logoColor=white" alt="TripSync" height="40" />
+
+
 
 # TripSync
 
 **Collaborative trip planning for groups — itinerary, expenses, files, and real-time sync in one place.**
 
-[![Node.js](https://img.shields.io/badge/Node.js-22.x-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
-[![Express](https://img.shields.io/badge/Express-5.x-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com)
-[![MongoDB](https://img.shields.io/badge/MongoDB-7.x-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://mongodb.com)
-[![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![Socket.io](https://img.shields.io/badge/Socket.io-4.x-010101?style=flat-square&logo=socket.io&logoColor=white)](https://socket.io)
-[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.x-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
+[Node.js](https://nodejs.org)
+[Express](https://expressjs.com)
+[MongoDB](https://mongodb.com)
+[React](https://react.dev)
+[Socket.io](https://socket.io)
+[TailwindCSS](https://tailwindcss.com)
+[License](LICENSE)
 
 [Features](#-features) · [Tech Stack](#-tech-stack) · [Architecture](#-architecture) · [Getting Started](#-getting-started) · [API](#-api-highlights) · [Roadmap](#-roadmap)
 
-</div>
+
 
 ---
+
+
 
 ## 📖 Project Overview
 
@@ -28,58 +30,74 @@ TripSync is a full-stack collaborative trip-planning platform where groups can p
 
 ---
 
+
+
 ## ✨ Features
 
-| Category | Features |
-|---|---|
-| **Trips** | Create, edit, delete trips with title, description, date range, and cover image |
-| **Destinations** | Add places to visit with date, time (AM/PM), and estimated cost (₹) |
-| **Members** | Invite by email, assign Owner / Editor / Viewer roles, remove members |
-| **Expenses** | Log expenses by category, auto-calculate equal splits and per-person balances |
-| **Documents** | Upload boarding passes, PDFs, and files to Cloudinary; scoped per trip |
-| **Real-time** | All changes broadcast live to every member viewing the same trip via Socket.IO |
-| **Auth** | JWT access tokens (15 min) + refresh tokens (7 days) with silent rotation |
-| **Email** | Password reset emails and member-added notifications via SMTP / Mailtrap |
-| **Theming** | Light / Dark / System theme toggle persisted to localStorage |
-| **Docs** | Integrated product documentation at `/docs` |
+
+| Category         | Features                                                                        |
+| ---------------- | ------------------------------------------------------------------------------- |
+| **Trips**        | Create, edit, delete trips with title, description, date range, and cover image |
+| **Destinations** | Add places to visit with date, time (AM/PM), and estimated cost (₹)             |
+| **Members**      | Invite by email, assign Owner / Editor / Viewer roles, remove members           |
+| **Expenses**     | Log expenses by category, auto-calculate equal splits and per-person balances   |
+| **Documents**    | Upload boarding passes, PDFs, and files to Cloudinary; scoped per trip          |
+| **Real-time**    | All changes broadcast live to every member viewing the same trip via Socket.IO  |
+| **Auth**         | JWT access tokens (15 min) + refresh tokens (7 days) with silent rotation       |
+| **Email**        | Password reset emails and member-added notifications via SMTP / Mailtrap        |
+| **Theming**      | Light / Dark / System theme toggle persisted to localStorage                    |
+| **Docs**         | Integrated product documentation at `/docs`                                     |
+
 
 ---
+
+
 
 ## 🛠 Tech Stack
 
+
+
 ### Backend
 
-| Technology | Version | Purpose |
-|---|---|---|
-| Node.js | 22.x | Runtime |
-| Express | 5.x | HTTP framework (async error handling built-in) |
-| MongoDB | 7.x | Database |
-| Mongoose | 9.x | ODM with schema validation |
-| Socket.IO | 4.x | WebSocket server for real-time sync |
-| jsonwebtoken | 9.x | JWT generation and verification |
-| bcryptjs | 3.x | Password hashing |
-| Nodemailer | 9.x | Transactional email |
-| Cloudinary | 2.x | File storage and CDN |
-| Multer | 2.x | Multipart form / file upload middleware |
-| Joi | 18.x | Request body validation via DTOs |
+
+| Technology   | Version | Purpose                                        |
+| ------------ | ------- | ---------------------------------------------- |
+| Node.js      | 22.x    | Runtime                                        |
+| Express      | 5.x     | HTTP framework (async error handling built-in) |
+| MongoDB      | 7.x     | Database                                       |
+| Mongoose     | 9.x     | ODM with schema validation                     |
+| Socket.IO    | 4.x     | WebSocket server for real-time sync            |
+| jsonwebtoken | 9.x     | JWT generation and verification                |
+| bcryptjs     | 3.x     | Password hashing                               |
+| Nodemailer   | 9.x     | Transactional email                            |
+| Cloudinary   | 2.x     | File storage and CDN                           |
+| Multer       | 2.x     | Multipart form / file upload middleware        |
+| Joi          | 18.x    | Request body validation via DTOs               |
+
+
+
 
 ### Frontend
 
-| Technology | Version | Purpose |
-|---|---|---|
-| React | 19.x | UI library |
-| Vite | 8.x | Build tool and dev server |
-| TailwindCSS | 4.x | Utility-first styling |
-| shadcn/ui | latest | Accessible component primitives |
-| TanStack Query | 5.x | Server state management and caching |
-| React Router | 7.x | Client-side routing |
-| React Hook Form | 7.x | Form state and validation |
-| Socket.IO Client | 4.x | Real-time event handling |
-| Axios | 1.x | HTTP client with interceptors |
-| date-fns | 4.x | Date formatting |
-| Sonner | 2.x | Toast notifications |
+
+| Technology       | Version | Purpose                             |
+| ---------------- | ------- | ----------------------------------- |
+| React            | 19.x    | UI library                          |
+| Vite             | 8.x     | Build tool and dev server           |
+| TailwindCSS      | 4.x     | Utility-first styling               |
+| shadcn/ui        | latest  | Accessible component primitives     |
+| TanStack Query   | 5.x     | Server state management and caching |
+| React Router     | 7.x     | Client-side routing                 |
+| React Hook Form  | 7.x     | Form state and validation           |
+| Socket.IO Client | 4.x     | Real-time event handling            |
+| Axios            | 1.x     | HTTP client with interceptors       |
+| date-fns         | 4.x     | Date formatting                     |
+| Sonner           | 2.x     | Toast notifications                 |
+
 
 ---
+
+
 
 ## 🏗 Architecture
 
@@ -106,6 +124,8 @@ TripSync is a full-stack collaborative trip-planning platform where groups can p
 └─────────────────────────────────────────────────────────┘
 ```
 
+
+
 ### Module pattern (Backend)
 
 Every feature follows the same four-layer structure:
@@ -120,6 +140,8 @@ src/modules/<feature>/
 ```
 
 ---
+
+
 
 ## 📁 Folder Structure
 
@@ -170,6 +192,8 @@ Trip Planner/
 
 ---
 
+
+
 ## 🗄 Database Design
 
 ```
@@ -201,7 +225,9 @@ Documents
 
 ---
 
-## ⚡ Real-time Collaboration (Socket.IO)
+
+
+## ⚡ Real-time Collaboration ([Socket.IO](http://Socket.IO))
 
 Every trip gets its own Socket.IO room: `trip_<tripId>`. Members join when they open a trip page and automatically rejoin after reconnections.
 
@@ -216,21 +242,27 @@ io.use(socketAuth)  ──► verifyAccessToken() ──► User.findById()
             Connection accepted
 ```
 
+
+
 ### Events
 
-| Event | Emitted after | Received by |
-|---|---|---|
-| `expense:created` | New expense saved | All members in trip room |
-| `expense:updated` | Expense updated | All members in trip room |
-| `expense:deleted` | Expense deleted | All members in trip room |
+
+| Event                 | Emitted after         | Received by              |
+| --------------------- | --------------------- | ------------------------ |
+| `expense:created`     | New expense saved     | All members in trip room |
+| `expense:updated`     | Expense updated       | All members in trip room |
+| `expense:deleted`     | Expense deleted       | All members in trip room |
 | `destination:created` | New destination saved | All members in trip room |
-| `destination:updated` | Destination updated | All members in trip room |
-| `destination:deleted` | Destination deleted | All members in trip room |
-| `member:added` | Member added | All members in trip room |
-| `member:updated` | Role changed | All members in trip room |
-| `member:deleted` | Member removed | All members in trip room |
-| `document:uploaded` | File uploaded | All members in trip room |
-| `document:deleted` | File deleted | All members in trip room |
+| `destination:updated` | Destination updated   | All members in trip room |
+| `destination:deleted` | Destination deleted   | All members in trip room |
+| `member:added`        | Member added          | All members in trip room |
+| `member:updated`      | Role changed          | All members in trip room |
+| `member:deleted`      | Member removed        | All members in trip room |
+| `document:uploaded`   | File uploaded         | All members in trip room |
+| `document:deleted`    | File deleted          | All members in trip room |
+
+
+
 
 ### Frontend handling
 
@@ -247,43 +279,57 @@ socket.on("expense:created", () =>
 
 ---
 
+
+
 ## 🔌 API Highlights
 
 Base URL: `http://localhost:4000/api/v1`
 
 ### Auth
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| `POST` | `/auth/register` | — | Register new user |
-| `POST` | `/auth/login` | — | Login, returns access token + sets refresh cookie |
-| `POST` | `/auth/refresh-token` | Cookie | Silently rotate tokens |
-| `POST` | `/auth/logout` | Bearer | Invalidate refresh token |
-| `POST` | `/auth/forgot-password` | — | Send reset email |
-| `PUT` | `/auth/reset-password/:token` | — | Reset password with token |
-| `GET` | `/auth/me` | Bearer | Get current user |
+
+| Method | Endpoint                      | Auth   | Description                                       |
+| ------ | ----------------------------- | ------ | ------------------------------------------------- |
+| `POST` | `/auth/register`              | —      | Register new user                                 |
+| `POST` | `/auth/login`                 | —      | Login, returns access token + sets refresh cookie |
+| `POST` | `/auth/refresh-token`         | Cookie | Silently rotate tokens                            |
+| `POST` | `/auth/logout`                | Bearer | Invalidate refresh token                          |
+| `POST` | `/auth/forgot-password`       | —      | Send reset email                                  |
+| `PUT`  | `/auth/reset-password/:token` | —      | Reset password with token                         |
+| `GET`  | `/auth/me`                    | Bearer | Get current user                                  |
+
+
+
 
 ### Trips
 
-| Method | Endpoint | Role | Description |
-|---|---|---|---|
-| `POST` | `/trips/create-trip` | Any | Create a new trip |
-| `GET` | `/trips/getAllTrips` | Any | Get all trips for current user |
-| `PATCH` | `/trips/:tripId` | Owner, Editor | Update trip details |
-| `DELETE` | `/trips/:tripId` | Owner | Delete trip |
-| `PATCH` | `/trips/:tripId/cover` | Owner, Editor | Upload cover image |
+
+| Method   | Endpoint               | Role          | Description                    |
+| -------- | ---------------------- | ------------- | ------------------------------ |
+| `POST`   | `/trips/create-trip`   | Any           | Create a new trip              |
+| `GET`    | `/trips/getAllTrips`   | Any           | Get all trips for current user |
+| `PATCH`  | `/trips/:tripId`       | Owner, Editor | Update trip details            |
+| `DELETE` | `/trips/:tripId`       | Owner         | Delete trip                    |
+| `PATCH`  | `/trips/:tripId/cover` | Owner, Editor | Upload cover image             |
+
+
+
 
 ### Expenses
 
-| Method | Endpoint | Role | Description |
-|---|---|---|---|
-| `POST` | `/trips/:tripId/expenses` | All | Add expense |
-| `GET` | `/trips/:tripId/expenses` | All | List expenses |
-| `GET` | `/trips/:tripId/expenses/balances` | All | Get per-member balances |
-| `PATCH` | `/trips/:tripId/expenses/:id` | Owner, Editor | Update expense |
-| `DELETE` | `/trips/:tripId/expenses/:id` | Owner | Delete expense |
+
+| Method   | Endpoint                           | Role          | Description             |
+| -------- | ---------------------------------- | ------------- | ----------------------- |
+| `POST`   | `/trips/:tripId/expenses`          | All           | Add expense             |
+| `GET`    | `/trips/:tripId/expenses`          | All           | List expenses           |
+| `GET`    | `/trips/:tripId/expenses/balances` | All           | Get per-member balances |
+| `PATCH`  | `/trips/:tripId/expenses/:id`      | Owner, Editor | Update expense          |
+| `DELETE` | `/trips/:tripId/expenses/:id`      | Owner         | Delete expense          |
+
 
 > Members, Destinations, and Documents follow the same RESTful pattern under `/trips/:tripId/`.
+
+
 
 ### RBAC Middleware
 
@@ -296,7 +342,11 @@ requireRole("Owner") // throws 403 if role is insufficient
 
 ---
 
+
+
 ## 🚀 Getting Started
+
+
 
 ### Prerequisites
 
@@ -308,20 +358,23 @@ requireRole("Owner") // throws 403 if role is insufficient
 
 
 
-
 ## 📸 Screenshots
 
-> _Add screenshots here after deployment_
+>
 
-| Page | Preview |
-|---|---|
-| Landing Page | `screenshots/landing.png` |
-| Dashboard | `screenshots/dashboard.png` |
-| Trip Details | `screenshots/trip-details.png` |
-| Expense Balances | `screenshots/balances.png` |
-| Docs Page | `screenshots/docs.png` |
+
+| Page             | Preview                        |
+| ---------------- | ------------------------------ |
+| Landing Page     | `screenshots/landing.png`      |
+| Dashboard        | `screenshots/dashboard.png`    |
+| Trip Details     | `screenshots/trip-details.png` |
+| Expense Balances | `screenshots/balances.png`     |
+| Docs Page        | `screenshots/docs.png`         |
+
 
 ---
+
+
 
 ## 🗺 Roadmap
 
@@ -338,6 +391,8 @@ requireRole("Owner") // throws 403 if role is insufficient
 
 ---
 
+
+
 ## 🧠 Challenges & Learnings
 
 **React StrictMode + Socket.IO**
@@ -353,6 +408,8 @@ When a socket disconnects and reconnects (new socket ID on server), it loses roo
 Implemented a two-step middleware approach: `loadTripRole` first fetches the member record and attaches `req.tripRole`, then `requireRole(...allowed)` checks it. This keeps route files declarative and avoids repeated DB lookups inside controllers.
 
 ---
+
+
 
 ## 🤝 Contributing
 
@@ -373,25 +430,28 @@ Please follow the existing code style: ES Modules, async/await, no default expor
 
 ---
 
+
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
 
 ---
 
+
+
 ## 👤 Author
 
 **Piyush Kumar**
 
-[![GitHub](https://img.shields.io/badge/GitHub-Piyushkumar--20-181717?style=flat-square&logo=github)](https://github.com/Piyushkumar-20)
-[![Email](https://img.shields.io/badge/Email-piyush.dev200%40gmail.com-EA4335?style=flat-square&logo=gmail&logoColor=white)](mailto:piyush.dev200@gmail.com)
+[GitHub](https://github.com/Piyushkumar-20)
+[Email](mailto:piyush.dev200@gmail.com)
 
 ---
 
-<div align="center">
+
 
 Built with ☕ and too many boarding passes.
 
 ⭐ Star this repo if you found it useful!
 
-</div>

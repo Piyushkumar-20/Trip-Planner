@@ -64,9 +64,23 @@ const getMe = async (req, res) => {
   ApiResponse.ok(res, "User profile", user);
 };
 
+const googleLogin = async (req, res) => {
+  const { idToken } = req.body;
+
+  const { user, accessToken, refreshToken } =
+    await authService.googleLogin({ idToken });
+
+  res.cookie("refreshToken", refreshToken, cookieOptions);
+
+  ApiResponse.ok(res, "Google login successful!", {
+    user,
+    accessToken,
+  });
+};
 export {
   register,
   login,
+  googleLogin,
   refreshToken,
   logout,
   forgetPassword,

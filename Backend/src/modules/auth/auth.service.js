@@ -12,6 +12,9 @@ import {
   sendVerificationEmail,
   sendResetPasswordEmail,
 } from "../../common/config/email.js";
+import { OAuth2Client } from "google-auth-library";
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Hash the refreshtoken before storing in DB
 const hashToken = (token) =>
@@ -113,15 +116,15 @@ const verifyEmail = async (token) => {
   }
 
   const hashedToken = hashToken(trimmed); // hash what the user sent in register()
-  let user = await User
-    .findOne({ verificationToken: hashedToken })
-    .select("+verificationToken");
+  let user = await User.findOne({ verificationToken: hashedToken }).select(
+    "+verificationToken",
+  );
 
   // For developers testing in postman or api testing
   if (!user) {
-    user = await User
-      .findOne({ verificationToken: trimmed })
-      .select("verificationToken");
+    user = await User.findOne({ verificationToken: trimmed }).select(
+      "verificationToken",
+    );
   }
 
   if (!user) {
@@ -160,12 +163,10 @@ const forgetPassword = async (email) => {
 const resetPassword = async (token, newPassword) => {
   const hashedToken = hashToken(token);
 
-  const user = await User
-    .findOne({
-      resetPasswordToken: hashedToken,
-      resetPasswordTokenExpires: { $gt: Date.now() },
-    })
-    .select("+resetPasswordToken +resetPasswordTokenExpires");
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordTokenExpires: { $gt: Date.now() },
+  }).select("+resetPasswordToken +resetPasswordTokenExpires");
 
   if (!user) {
     throw ApiError.unauthorized("No User found");
@@ -186,13 +187,79 @@ const getMe = async (userId) => {
   return user;
 };
 
+const googleLogin = async ({ idToken }) => {
+  let payload;
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    payload = ticket.getPayload();
+  } catch {
+    throw ApiError.unauthorized("Invalid Google token");
+  }
+
+  const {
+    sub: googleId,
+    email,
+    name,
+    picture,
+    email_verified,
+  } = payload;
+
+  if (!email_verified) {
+    throw ApiError.unauthorized("Google email is not verified");
+  }
+
+  let user = await User.findOne({ email }).select("+refreshToken");
+
+  if (!user) {
+    const randomPassword = crypto.randomBytes(32).toString("hex");
+
+    user = await User.create({
+      fullName: name,
+      email,
+      password: randomPassword,
+      isVerified: true,
+      provider: "google",
+      googleId,
+      avatar: picture,
+    });
+  } else if (!user.provider || user.provider === "local") {
+    user.provider = "google";
+    user.googleId = googleId;
+    user.avatar = picture;
+
+    await user.save({ validateBeforeSave: false });
+  }
+
+  const refreshToken = generateRefreshToken({ id: user._id });
+  const accessToken = generateAccessToken({ id: user._id });
+
+  user.refreshToken = hashToken(refreshToken);
+
+  await user.save({ validateBeforeSave: false });
+
+  const userObj = user.toObject();
+  delete userObj.password;
+  delete userObj.refreshToken;
+
+  return {
+    user: userObj,
+    accessToken,
+    refreshToken,
+  };
+};
 export {
   register,
   login,
+  googleLogin,
   refresh,
   verifyEmail,
   logout,
   forgetPassword,
   resetPassword,
-  getMe
+  getMe,
 };
