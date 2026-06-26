@@ -12,7 +12,10 @@ export function AuthProvider({ children }) {
     if (!token) return;
     api.get("/auth/me")
       .then((res) => setUser(res.data.data))
-      .catch(() => localStorage.removeItem("accessToken"))
+      .catch(() => {
+        localStorage.removeItem("accessToken");
+        setUser(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -30,9 +33,12 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    await api.post("/auth/logout");
-    localStorage.removeItem("accessToken");
-    setUser(null);
+    try {
+      await api.post("/auth/logout");
+    } finally {
+      localStorage.removeItem("accessToken");
+      setUser(null);
+    }
   };
 
   return (

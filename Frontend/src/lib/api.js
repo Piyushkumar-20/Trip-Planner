@@ -1,7 +1,10 @@
 import axios from "axios";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+const REFRESH_TOKEN_URL = "/auth/refresh-token";
+
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
+  baseURL: `${API_BASE_URL}/api/v1`,
   withCredentials: true,
 });
 
@@ -26,12 +29,18 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const isRefreshRequest = originalRequest?.url === REFRESH_TOKEN_URL;
+
+    if (!originalRequest || isRefreshRequest) {
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         }).then((token) => {
+          originalRequest.headers = originalRequest.headers || {};
           originalRequest.headers.Authorization = `Bearer ${token}`;
           return api(originalRequest);
         });
@@ -41,11 +50,12 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = await api.post("/auth/refresh-token");
+        const res = await api.post(REFRESH_TOKEN_URL);
         const newToken = res.data.data.accessToken;
 
         localStorage.setItem("accessToken", newToken);
         api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+        originalRequest.headers = originalRequest.headers || {};
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
 
         processQueue(null, newToken);

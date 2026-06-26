@@ -6,7 +6,15 @@ const cookieOptions = {
   httpOnly: true,
   secure: isProd,
   sameSite: isProd ? "none" : "lax",
+  path: "/",
   maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
+const clearCookieOptions = {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: isProd ? "none" : "lax",
+  path: "/",
 };
 
 const register = async (req, res) => {
@@ -37,7 +45,7 @@ const verifyEmail = async (req, res) => {
 
 const logout = async (req, res) => {
   await authService.logout(req.user.id);
-  res.clearCookie("refreshToken", cookieOptions);
+  res.clearCookie("refreshToken", clearCookieOptions);
   ApiResponse.ok(res, "Logged Out!");
 };
 
