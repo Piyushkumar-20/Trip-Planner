@@ -1,10 +1,21 @@
 import { format } from "date-fns";
-import { CalendarDays, Clock, IndianRupee, Pencil, Trash2 } from "lucide-react";
+import { CalendarDays, Clock, IndianRupee, ListChecks, Pencil, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function DestinationCard({ destination, canEdit, canDelete, onEdit, onDelete }) {
+function DestinationCard({
+  destination,
+  tripId,
+  activityCount,
+  canEdit,
+  canDelete,
+  onEdit,
+  onDelete,
+}) {
+  const navigate = useNavigate();
+
   return (
     <Card className="group py-0">
       <div className="p-3.5 space-y-2">
@@ -65,12 +76,31 @@ function DestinationCard({ destination, canEdit, canDelete, onEdit, onDelete }) 
             Added by {destination.createdBy.fullName}
           </p>
         )}
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 w-full justify-center text-xs"
+          onClick={() => navigate(`/trips/${tripId}/destinations/${destination._id}/activities`)}
+        >
+          <ListChecks className="mr-1.5 h-3.5 w-3.5" />
+          Activities ({activityCount ?? 0})
+        </Button>
       </div>
     </Card>
   );
 }
 
-export default function DestinationList({ destinations, loading, canEdit, canDelete, onEdit, onDelete }) {
+export default function DestinationList({
+  destinations,
+  loading,
+  tripId,
+  activityCounts = {},
+  canEdit,
+  canDelete,
+  onEdit,
+  onDelete,
+}) {
   if (loading) {
     return (
       <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
@@ -87,6 +117,8 @@ export default function DestinationList({ destinations, loading, canEdit, canDel
         <DestinationCard
           key={dest._id}
           destination={dest}
+          tripId={tripId}
+          activityCount={activityCounts[dest._id]}
           canEdit={canEdit}
           canDelete={canDelete}
           onEdit={onEdit}

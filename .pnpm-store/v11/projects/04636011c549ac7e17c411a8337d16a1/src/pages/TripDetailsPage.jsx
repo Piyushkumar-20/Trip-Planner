@@ -3,8 +3,6 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { differenceInDays, format } from "date-fns";
 import {
   ArrowLeft,
-  CalendarDays,
-  FileText,
   MapPin,
   Pencil,
   Receipt,
@@ -12,11 +10,13 @@ import {
   User,
   UserPlus,
   Users,
+  CalendarDays
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTrips } from "@/hooks/useTrips";
 import { useMembers } from "@/hooks/useMembers";
 import { useDestinations } from "@/hooks/useDestinations";
+import { useDestinationActivityCounts } from "@/hooks/useActivities";
 import { useExpenses, useExpenseBalances } from "@/hooks/useExpenses";
 import { useDocuments } from "@/hooks/useDocuments";
 import { useTripSocket } from "@/hooks/useTripSocket";
@@ -54,7 +54,7 @@ function Dot() {
   return <span className="select-none text-muted-foreground/30" aria-hidden>•</span>;
 }
 
-function ComingSoon({ icon: Icon, title }) {
+export function ComingSoon({ icon: Icon, title }) {
   return (
     <Card>
       <CardContent className="flex flex-col items-center justify-center py-24 text-center">
@@ -79,6 +79,7 @@ export default function TripDetailsPage() {
 
   const { data: members, isLoading: membersLoading } = useMembers(tripId);
   const { data: destinations, isLoading: destinationsLoading } = useDestinations(tripId);
+  const activityCounts = useDestinationActivityCounts(tripId, destinations ?? []);
   const { data: expenses,  isLoading: expensesLoading  } = useExpenses(tripId);
   const { data: balances,  isLoading: balancesLoading  } = useExpenseBalances(tripId);
   const { data: documents, isLoading: documentsLoading } = useDocuments(tripId);
@@ -366,6 +367,8 @@ export default function TripDetailsPage() {
                 <DestinationList
                   destinations={destinations ?? []}
                   loading={false}
+                  tripId={tripId}
+                  activityCounts={activityCounts}
                   canEdit={canEditDestination}
                   canDelete={canDelDestination}
                   onEdit={(d) => { setSelectedDestination(d); setDestFormOpen(true); }}

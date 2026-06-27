@@ -9,6 +9,7 @@ import RegisterPage from "@/pages/RegisterPage"
 import DashboardPage from "@/pages/DashboardPage"
 import TripsPage from "@/pages/TripsPage"
 import TripDetailsPage from "@/pages/TripDetailsPage"
+import DestinationActivitiesPage from "@/pages/DestinationActivitiesPage"
 import MembersPage from "@/pages/MembersPage"
 import SettingsPage from "@/pages/SettingsPage"
 import MainLayout from "@/layouts/MainLayout"
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/trips" element={<TripsPage />} />
         <Route path="/trips/:tripId" element={<TripDetailsPage />} />
+        <Route path="/trips/:tripId/destinations/:destinationId/activities" element={<DestinationActivitiesPage />} />
         <Route path="/members" element={<MembersPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>

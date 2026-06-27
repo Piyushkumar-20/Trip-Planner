@@ -163,7 +163,7 @@ export default function MainLayout() {
               <ThemeToggle />
             </div>
           </header>
-          <div className="flex-1 overflow-auto p-6">
+          <div className="app-decorated-page flex-1 overflow-auto p-6">
             <Outlet />
           </div>
         </SidebarInset>

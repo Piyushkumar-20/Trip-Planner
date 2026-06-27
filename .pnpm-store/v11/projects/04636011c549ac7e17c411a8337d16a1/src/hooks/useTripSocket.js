@@ -22,6 +22,7 @@ export const useTripSocket = (tripId) => {
       qc.invalidateQueries({ queryKey: ["expenses-balances", tripId] });
     };
     const invalidateDestinations = () => qc.invalidateQueries({ queryKey: ["destinations", tripId] });
+    const invalidateActivities   = () => qc.invalidateQueries({ queryKey: ["activities", tripId] });
     const invalidateMembers      = () => qc.invalidateQueries({ queryKey: ["members", tripId] });
     const invalidateDocuments    = () => qc.invalidateQueries({ queryKey: ["documents", tripId] });
 
@@ -32,6 +33,10 @@ export const useTripSocket = (tripId) => {
     socket.on("destination:created", invalidateDestinations);
     socket.on("destination:updated", invalidateDestinations);
     socket.on("destination:deleted", invalidateDestinations);
+    socket.on("activity:created",    invalidateActivities);
+    socket.on("activity:updated",    invalidateActivities);
+    socket.on("activity:deleted",    invalidateActivities);
+    socket.on("activity:orderUpdated", invalidateActivities);
     socket.on("member:added",        invalidateMembers);
     socket.on("member:updated",      invalidateMembers);
     socket.on("member:deleted",      invalidateMembers);
@@ -47,6 +52,10 @@ export const useTripSocket = (tripId) => {
       socket.off("destination:created", invalidateDestinations);
       socket.off("destination:updated", invalidateDestinations);
       socket.off("destination:deleted", invalidateDestinations);
+      socket.off("activity:created",   invalidateActivities);
+      socket.off("activity:updated",   invalidateActivities);
+      socket.off("activity:deleted",   invalidateActivities);
+      socket.off("activity:orderUpdated", invalidateActivities);
       socket.off("member:added",       invalidateMembers);
       socket.off("member:updated",     invalidateMembers);
       socket.off("member:deleted",     invalidateMembers);
