@@ -25,7 +25,7 @@ const updateTrip = async ({ tripId, updates }) => {
   }
 
   const trip = await Trip.findByIdAndUpdate(tripId, updates, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   });
   if (!trip) throw ApiError.notFound("Trip Not Found!");

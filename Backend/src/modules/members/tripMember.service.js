@@ -46,7 +46,7 @@ const updateMember = async ({ tripId, memberId, role }) => {
   const member = await Member.findOneAndUpdate(
     { _id: memberId, tripId },
     { role },
-    { new: true, runValidators: true },
+    { returnDocument: 'after', runValidators: true },
   );
   if (!member) throw ApiError.notFound("Member not found!");
   io.to(`trip_${tripId}`).emit("member:updated", member);

@@ -30,7 +30,7 @@ const updateComment = async ({ commentId, content }) => {
   const comment = await Comment.findByIdAndUpdate(
     commentId,
     { content },
-    { new: true, runValidators: true },
+    { returnDocument: 'after', runValidators: true },
   )
 
   if (!comment) {
