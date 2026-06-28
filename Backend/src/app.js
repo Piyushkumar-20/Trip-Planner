@@ -12,6 +12,7 @@ import expenseRoute from "./modules/expenses/expense.routes.js";
 import documentRoute from "./modules/documents/document.routes.js";
 import activityRoute from "./modules/activity/activity.routes.js";
 import commentRoute from "./modules/comments/comment.routes.js";
+import checklistRoute from "./modules/checklists/checklistItem.routes.js"
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use("/api/v1/trips", expenseRoute);
 app.use("/api/v1/trips", documentRoute);
 app.use("/api/v1/trips", activityRoute);
 app.use("/api/v1/trips", commentRoute);
+app.use("ai/v1/trips", checklistRoute)
 
 app.use((err, req, res, next) => {
   const status = err.status || 500;
