@@ -1,6 +1,6 @@
 import express from "express";
 import * as controller from "./checklistItem.controller.js";
-import validate from "../../common/middlewares/validate.dto.js";
+import validate from "../../common/validators/validator.js"
 import {
   UpdateChecklistItemDto,
   CreateChecklistItemDto,
