@@ -25,6 +25,8 @@ export const loadTripRole = async (req, res, next) => {
 
   req.trip = trip;
   req.tripRole = member.role;
+  console.log("Trip Owner:", trip.owner.toString());
+  console.log("Current User:", req.user.id);
   next();
 };
 
@@ -35,11 +37,12 @@ export const loadTripRole = async (req, res, next) => {
  * Usage: requireRole("Owner")
  *        requireRole("Owner", "Editor")
  */
-export const requireRole = (...roles) =>
+export const requireRole =
+  (...roles) =>
   (req, res, next) => {
     if (!roles.includes(req.tripRole)) {
       throw ApiError.forbidden(
-        `Only ${roles.join(" or ")} can perform this action`
+        `Only ${roles.join(" or ")} can perform this action`,
       );
     }
     next();
