@@ -4,6 +4,7 @@ import ApiResponse from "../../common/utils/api-response.js";
 const createChecklistItem = async (req, res) => {
   const checklist = await checklistService.createChecklistItem({
     ...req.body,
+    type: req.params.type,
     tripId: req.params.tripId,
     currentUserId: req.user.id,
   });
@@ -23,6 +24,7 @@ const updateChecklistItem = async (req, res) => {
 const getAllChecklistItem = async (req, res) => {
   const checklistItem = await checklistService.getAllchecklistItem({
     ...req.body,
+    type: req.params.type,
     tripId: req.params.tripId,
     currentUserId: req.user.id,
   });

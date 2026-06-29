@@ -15,7 +15,7 @@ import {
 const router = express.Router();
 
 router.post(
-  "/:tripId",
+  "/:tripId/:type",
   authenticate,
   loadTripRole,
   requireRole("Owner", "Editor", "Viewer"),
@@ -32,7 +32,7 @@ router.get(
 );
 
 router.patch(
-  "/:checklistItemId",
+  "/:tripId/:checklistItemId/",
   authenticate,
   loadTripRole,
   requireRole("Owner", "Editor", "Viewer"),
@@ -41,7 +41,7 @@ router.patch(
 );
 
 router.delete(
-  "/:checklistItemId",
+  "/:tripId/:checklistItemId",
   authenticate,
   loadTripRole,
   controller.deleteChecklistItem,

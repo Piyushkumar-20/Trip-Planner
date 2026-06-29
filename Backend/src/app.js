@@ -53,7 +53,7 @@ app.use("/api/v1/trips", expenseRoute);
 app.use("/api/v1/trips", documentRoute);
 app.use("/api/v1/trips", activityRoute);
 app.use("/api/v1/trips", commentRoute);
-app.use("/api/v1/trips", checklistRoute)
+app.use("/api/v1/trips/checklists", checklistRoute)
 
 app.use((err, req, res, next) => {
   const status = err.status || 500;
