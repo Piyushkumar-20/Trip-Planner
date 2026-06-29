@@ -51,7 +51,6 @@ app.get("/api-docs/openapi.json", (_req, res) => {
 app.get(
   "/api-docs",
   apiReference({
-    theme: "moon",
     url: "/api-docs/openapi.json",
     pageTitle: "TripSync API Reference",
   }),
