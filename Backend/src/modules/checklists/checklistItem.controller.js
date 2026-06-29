@@ -16,6 +16,7 @@ const updateChecklistItem = async (req, res) => {
   const checklistItem = await checklistService.updateChecklistItem({
     ...req.body,
     checklistItemId: req.params.checklistItemId,
+    tripId: req.params.tripId,
   });
 
   ApiResponse.ok(res, "Checklist Item Update Successfull", checklistItem);

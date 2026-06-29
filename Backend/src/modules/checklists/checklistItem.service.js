@@ -51,10 +51,19 @@ const updateChecklistItem = async ({
   checklistItemId,
   completed,
   text,
-  type,
+  tripId,
 }) => {
   const checklistItem = await ChecklistItem.findById(checklistItemId);
   if (!checklistItem) {
+    throw ApiError.notFound("Checklist Not Found!");
+  }
+
+  const checklist = await Checklist.findById(checklistItem.checklistId);
+  if (!checklist) {
+    throw ApiError.notFound("Checklist Not Found!");
+  }
+
+  if (tripId && checklist.tripId.toString() !== tripId.toString()) {
     throw ApiError.notFound("Checklist Not Found!");
   }
 
@@ -62,9 +71,9 @@ const updateChecklistItem = async ({
   checklistItem.completed = completed ?? checklistItem.completed;
 
   await checklistItem.save();
-  if (type === "Shared") {
-    io.to(`trip_${checklistItem.tripId}`).emit(
-      "checklist:itemCreated",
+  if (checklist.type === "Shared") {
+    io.to(`trip_${checklist.tripId}`).emit(
+      "checklist:itemUpdated",
       checklistItem,
     );
   }

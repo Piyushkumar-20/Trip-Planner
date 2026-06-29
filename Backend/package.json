@@ -21,6 +21,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@scalar/express-api-reference": "^0.10.6",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
     "compression": "^1.8.1",
