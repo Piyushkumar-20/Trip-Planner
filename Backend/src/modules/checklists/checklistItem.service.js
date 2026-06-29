@@ -105,10 +105,6 @@ const getAllchecklistItem = async ({ type, tripId, currentUserId }) => {
     checklistId: checklist._id,
   });
 
-  if (type === "Shared") {
-    io.to(`trip_${tripId}`).emit("checklist:itemCreated", checklistItem);
-  }
-
   return checklistItem;
 };
 

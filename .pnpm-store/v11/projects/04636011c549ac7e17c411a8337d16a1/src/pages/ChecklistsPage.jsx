@@ -5,79 +5,117 @@ import {
   ArrowRight,
   Check,
   ClipboardList,
-  ListChecks,
   MoreHorizontal,
   NotebookText,
   Plus,
+  Trash2,
   Users,
+  X,
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 import { useTrips } from "@/hooks/useTrips";
+import { useMembers } from "@/hooks/useMembers";
 import { useTripSocket } from "@/hooks/useTripSocket";
+import {
+  useChecklist,
+  useCreateChecklistItem,
+  useDeleteChecklistItem,
+  useUpdateChecklistItem,
+} from "@/hooks/useChecklist";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const packingItems = [
-  { id: "passport", title: "Passport", completed: true },
-  { id: "wallet", title: "Wallet", completed: true },
-  { id: "sunglasses", title: "Sunglasses", completed: true },
-  { id: "camera", title: "Camera", completed: false },
-  { id: "charger", title: "Charger", completed: false },
-  { id: "medicines", title: "Medicines", completed: false },
-  { id: "jacket", title: "Jacket", completed: false },
-  { id: "adapter", title: "Travel Adapter", completed: false },
-  { id: "flip-flops", title: "Flip Flops", completed: false },
-];
+const MAX_ITEM_LENGTH = 50;
 
-const sharedItems = [
-  { id: "hotel", title: "Book Hotel", completed: true, member: "Piyush", time: "2h ago", color: "bg-emerald-500" },
-  { id: "cab", title: "Reserve Cab", completed: true, member: "Rahul", time: "5h ago", color: "bg-violet-500" },
-  { id: "snacks", title: "Buy Snacks", completed: false, member: "Sneha", time: "1d ago", color: "bg-orange-500" },
-  { id: "budget", title: "Create Budget", completed: false, member: "Piyush", time: "1d ago", color: "bg-emerald-500" },
-  { id: "advance", title: "Pay Advance", completed: true, member: "Aman", time: "2d ago", color: "bg-blue-500" },
-  { id: "itinerary", title: "Plan Day-wise Itinerary", completed: false, member: "Rahul", time: "2d ago", color: "bg-violet-500" },
-];
-
-const members = [
-  { name: "Piyush", label: "You", color: "bg-emerald-500" },
-  { name: "Rahul", color: "bg-violet-500" },
-  { name: "Sneha", color: "bg-orange-500" },
-  { name: "Aman", color: "bg-blue-500" },
-];
-
-const views = {
+const VIEWS = {
   packing: {
+    type: "Packing",
     title: "Packing List",
     description: "Personal checklist - only visible to you",
     icon: ClipboardList,
     action: "Add Item",
     addCopy: "Add new item",
+    placeholder: "Add a packing item…",
+    emptyCopy: "Nothing packed yet. Add your first item.",
     progressTitle: "Your Progress",
-    progressLabel: "Packed",
+    progressSuffix: "Packed",
     completeLabel: "Packed",
     pendingLabel: "Remaining",
-    color: "text-primary",
     stroke: "stroke-primary",
-    rows: packingItems,
+    metricColor: "bg-primary",
+    showAssignee: false,
+    showTotal: false,
   },
   shared: {
+    type: "Shared",
     title: "Shared Tasks",
     description: "Collaborative checklist for the whole trip",
     icon: Users,
     action: "Add Task",
     addCopy: "Add new task",
+    placeholder: "Add a shared task…",
+    emptyCopy: "No tasks yet. Add the first one for your group.",
     progressTitle: "Overall Progress",
-    progressLabel: "Completed",
+    progressSuffix: "Completed",
     completeLabel: "Completed",
     pendingLabel: "Pending",
-    color: "text-emerald-500",
     stroke: "stroke-emerald-500",
-    rows: sharedItems,
+    metricColor: "bg-emerald-500",
+    showAssignee: true,
+    showTotal: true,
   },
 };
+
+const AVATAR_PALETTE = [
+  "bg-emerald-500",
+  "bg-violet-500",
+  "bg-orange-500",
+  "bg-blue-500",
+  "bg-pink-500",
+  "bg-amber-500",
+  "bg-cyan-500",
+  "bg-rose-500",
+];
+
+function colorFor(id = "") {
+  let hash = 0;
+  for (let i = 0; i < id.length; i += 1) {
+    hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  }
+  return AVATAR_PALETTE[hash % AVATAR_PALETTE.length];
+}
+
+function firstName(name) {
+  return name?.trim().split(/\s+/)[0] || "Member";
+}
+
+function timeAgo(value) {
+  if (!value) return "";
+  const seconds = Math.floor((Date.now() - new Date(value).getTime()) / 1000);
+  if (seconds < 60) return "now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks}w ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(days / 365)}y ago`;
+}
 
 function StatusBox({ checked }) {
   return (
@@ -94,74 +132,186 @@ function StatusBox({ checked }) {
   );
 }
 
-function Assignee({ item }) {
-  if (!item.member) return null;
+function Assignee({ name, color }) {
+  if (!name) return null;
 
   return (
     <div className="hidden min-w-36 items-center gap-2 text-sm sm:flex">
       <Avatar className="size-6">
-        <AvatarFallback className={cn("text-[11px] font-semibold text-white", item.color)}>
-          {item.member[0]}
+        <AvatarFallback className={cn("text-[11px] font-semibold text-white", color)}>
+          {name[0]?.toUpperCase()}
         </AvatarFallback>
       </Avatar>
-      <span className="font-medium">{item.member}</span>
+      <span className="font-medium">{name}</span>
     </div>
   );
 }
 
-function ChecklistRow({ item, shared }) {
+function ChecklistRow({ item, shared, assignee, onToggle, onDelete }) {
+  const time = timeAgo(item.updatedAt ?? item.createdAt);
+
   return (
     <div className="group/row grid min-h-12 grid-cols-[1fr_auto] items-center gap-3 border-b px-4 transition-all duration-200 last:border-b-0 hover:bg-muted/45 sm:px-6">
-      <div className="flex min-w-0 items-center gap-3">
+      <button
+        type="button"
+        onClick={() => onToggle(item)}
+        className="flex min-w-0 items-center gap-3 text-left"
+        aria-pressed={item.completed}
+        aria-label={`Mark "${item.text}" as ${item.completed ? "incomplete" : "complete"}`}
+      >
         <StatusBox checked={item.completed} />
         <div className="min-w-0">
-          <p className={cn("truncate text-sm font-medium", item.completed && "text-foreground")}>
-            {item.title}
+          <p
+            className={cn(
+              "truncate text-sm font-medium transition-colors",
+              item.completed && "text-muted-foreground line-through",
+            )}
+          >
+            {item.text}
           </p>
-          {shared && (
+          {shared && assignee && (
             <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground sm:hidden">
-              <span>{item.member}</span>
+              <span>{assignee.name}</span>
               <span aria-hidden="true">/</span>
-              <span>{item.time}</span>
+              <span>{time}</span>
             </p>
           )}
         </div>
-      </div>
+      </button>
 
       <div className="flex items-center gap-3">
-        <Assignee item={item} />
-        {shared && <span className="hidden w-14 text-right text-xs text-muted-foreground sm:inline">{item.time}</span>}
-        <Button variant="ghost" size="icon-sm" aria-label={`More options for ${item.title}`}>
-          <MoreHorizontal className="size-4" />
-        </Button>
+        {shared && assignee && <Assignee name={assignee.name} color={assignee.color} />}
+        {shared && (
+          <span className="hidden w-14 text-right text-xs text-muted-foreground sm:inline">
+            {time}
+          </span>
+        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon-sm" aria-label={`More options for ${item.text}`}>
+              <MoreHorizontal className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem className="text-destructive" onClick={() => onDelete(item)}>
+              <Trash2 className="mr-2 size-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
 }
 
-function ChecklistTable({ view }) {
-  const shared = view.title === "Shared Tasks";
+function AddRow({ view, adding, setAdding, onAdd, isPending }) {
+  const [text, setText] = useState("");
 
+  const submit = (event) => {
+    event.preventDefault();
+    const value = text.trim();
+    if (!value) return;
+    onAdd(value);
+    setText(""); // Input keeps focus, so the row stays ready for rapid entry.
+  };
+
+  if (!adding) {
+    return (
+      <div className="p-2">
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-muted-foreground/30 bg-muted/20 text-sm font-medium text-foreground transition-all duration-200 hover:border-primary/60 hover:bg-primary/5 hover:text-primary"
+        >
+          <Plus className="size-4 text-primary" />
+          {view.addCopy}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={submit} className="flex items-center gap-2 p-2">
+      <Input
+        autoFocus
+        value={text}
+        maxLength={MAX_ITEM_LENGTH}
+        placeholder={view.placeholder}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setAdding(false);
+        }}
+        className="h-11 rounded-xl"
+      />
+      <Button type="submit" className="h-11 shrink-0" disabled={isPending || !text.trim()}>
+        <Plus className="size-4" />
+        Add
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="size-11 shrink-0"
+        aria-label="Cancel adding"
+        onClick={() => setAdding(false)}
+      >
+        <X className="size-4" />
+      </Button>
+    </form>
+  );
+}
+
+function ChecklistTable({
+  view,
+  items,
+  isLoading,
+  assigneeFor,
+  adding,
+  setAdding,
+  onAdd,
+  onToggle,
+  onDelete,
+  isAdding,
+}) {
   return (
     <Card className="py-0 shadow-lg shadow-foreground/5">
       <CardContent className="p-0">
-        <div className="divide-y-0">
-          {view.rows.map((item) => (
-            <ChecklistRow key={item.id} item={item} shared={shared} />
-          ))}
-        </div>
-        <div className="p-2">
-          <button className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-muted-foreground/30 bg-muted/20 text-sm font-medium text-foreground transition-all duration-200 hover:border-primary/60 hover:bg-primary/5 hover:text-primary">
-            <Plus className="size-4 text-primary" />
-            {view.addCopy}
-          </button>
-        </div>
+        {isLoading ? (
+          <div className="space-y-px p-4 sm:p-6">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Skeleton key={i} className="h-11 w-full rounded-lg" />
+            ))}
+          </div>
+        ) : items.length === 0 ? (
+          <p className="px-6 py-10 text-center text-sm text-muted-foreground">{view.emptyCopy}</p>
+        ) : (
+          <div className="divide-y-0">
+            {items.map((item) => (
+              <ChecklistRow
+                key={item._id}
+                item={item}
+                shared={view.showAssignee}
+                assignee={assigneeFor(item)}
+                onToggle={onToggle}
+                onDelete={onDelete}
+              />
+            ))}
+          </div>
+        )}
+        <AddRow
+          key={adding ? "add-open" : "add-closed"}
+          view={view}
+          adding={adding}
+          setAdding={setAdding}
+          onAdd={onAdd}
+          isPending={isAdding}
+        />
       </CardContent>
     </Card>
   );
 }
 
-function ProgressRing({ completed, total, strokeClass }) {
+function ProgressRing({ completed, total, strokeClass, suffix }) {
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
   const percent = total ? completed / total : 0;
@@ -187,7 +337,9 @@ function ProgressRing({ completed, total, strokeClass }) {
         <span className="text-2xl font-semibold tracking-tight">
           {completed} / {total}
         </span>
-        <span className="mt-1 text-[11px] text-muted-foreground">{Math.round(percent * 100)}% {completed === total ? "Done" : "Complete"}</span>
+        <span className="mt-1 text-[11px] text-muted-foreground">
+          {Math.round(percent * 100)}% {suffix}
+        </span>
       </div>
     </div>
   );
@@ -205,22 +357,26 @@ function MetricLine({ color, label, value }) {
   );
 }
 
-function ProgressCard({ view }) {
-  const completed = view.rows.filter((item) => item.completed).length;
-  const total = view.rows.length;
-
+function ProgressCard({ view, completed, total }) {
   return (
     <Card className="shadow-lg shadow-foreground/5">
       <CardHeader>
         <CardTitle className="text-sm font-semibold">{view.progressTitle}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ProgressRing completed={completed} total={total} strokeClass={view.stroke} />
+        <ProgressRing
+          completed={completed}
+          total={total}
+          strokeClass={view.stroke}
+          suffix={view.progressSuffix}
+        />
         <Separator className="my-5" />
         <div className="space-y-3">
-          <MetricLine color={view.title === "Shared Tasks" ? "bg-emerald-500" : "bg-primary"} label={view.completeLabel} value={completed} />
+          <MetricLine color={view.metricColor} label={view.completeLabel} value={completed} />
           <MetricLine color="bg-muted-foreground/60" label={view.pendingLabel} value={total - completed} />
-          {view.title === "Shared Tasks" && <MetricLine color="bg-muted-foreground/30" label="Total Tasks" value={total} />}
+          {view.showTotal && (
+            <MetricLine color="bg-muted-foreground/30" label="Total Tasks" value={total} />
+          )}
         </div>
       </CardContent>
     </Card>
@@ -236,7 +392,11 @@ function NotesCard() {
       </CardHeader>
       <CardContent>
         <p className="text-sm leading-6 text-muted-foreground">Add any personal notes for this trip.</p>
-        <Button variant="outline" size="sm" className="mt-4 border-primary/40 text-primary hover:bg-primary/10 hover:text-primary">
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-4 border-primary/40 text-primary hover:bg-primary/10 hover:text-primary"
+        >
           <Plus className="size-3.5" />
           Add Note
         </Button>
@@ -245,27 +405,40 @@ function NotesCard() {
   );
 }
 
-function MembersCard() {
+function MembersCard({ members, currentUserId, isLoading, onViewAll }) {
   return (
     <Card className="shadow-lg shadow-foreground/5">
       <CardHeader>
         <CardTitle className="text-sm font-semibold">Trip Members</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-4 gap-3">
-          {members.map((member) => (
-            <div key={member.name} className="min-w-0 text-center">
-              <Avatar className="mx-auto size-8">
-                <AvatarFallback className={cn("text-xs font-semibold text-white", member.color)}>
-                  {member.name[0]}
-                </AvatarFallback>
-              </Avatar>
-              <p className="mt-2 truncate text-xs font-medium">{member.name}</p>
-              {member.label && <p className="truncate text-[11px] text-muted-foreground">({member.label})</p>}
-            </div>
-          ))}
-        </div>
-        <Button variant="link" size="sm" className="mt-5 h-auto p-0 text-primary">
+        {isLoading ? (
+          <div className="grid grid-cols-4 gap-3">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="mx-auto size-8 rounded-full" />
+            ))}
+          </div>
+        ) : members.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No members yet.</p>
+        ) : (
+          <div className="grid grid-cols-4 gap-3">
+            {members.map((member) => {
+              const isYou = member.id === currentUserId;
+              return (
+                <div key={member.id} className="min-w-0 text-center">
+                  <Avatar className="mx-auto size-8">
+                    <AvatarFallback className={cn("text-xs font-semibold text-white", member.color)}>
+                      {member.name[0]?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <p className="mt-2 truncate text-xs font-medium">{member.name}</p>
+                  {isYou && <p className="truncate text-[11px] text-muted-foreground">(You)</p>}
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <Button variant="link" size="sm" className="mt-5 h-auto p-0 text-primary" onClick={onViewAll}>
           View all members
           <ArrowRight className="size-3.5" />
         </Button>
@@ -277,7 +450,7 @@ function MembersCard() {
 function ViewSwitcher({ activeView, onChange }) {
   return (
     <div className="grid grid-cols-2 gap-2 rounded-2xl border bg-card p-1 shadow-sm sm:w-fit">
-      {Object.entries(views).map(([key, view]) => {
+      {Object.entries(VIEWS).map(([key, view]) => {
         const Icon = view.icon;
         const active = activeView === key;
 
@@ -287,7 +460,9 @@ function ViewSwitcher({ activeView, onChange }) {
             onClick={() => onChange(key)}
             className={cn(
               "flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
-              active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              active
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >
             <Icon className="size-4" />
@@ -302,16 +477,69 @@ function ViewSwitcher({ activeView, onChange }) {
 export default function ChecklistsPage() {
   const { tripId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeView, setActiveView] = useState("packing");
-  const { data: trips, isLoading } = useTrips();
+  const [adding, setAdding] = useState(false);
 
   useTripSocket(tripId);
 
-  const trip = useMemo(() => trips?.find((item) => item._id === tripId), [trips, tripId]);
-  const view = views[activeView];
+  const view = VIEWS[activeView];
   const Icon = view.icon;
 
-  if (isLoading) {
+  const { data: trips, isLoading: tripsLoading } = useTrips();
+  const { data: members, isLoading: membersLoading } = useMembers(tripId);
+  const { data: items, isLoading: itemsLoading } = useChecklist(tripId, view.type);
+
+  const createItem = useCreateChecklistItem(tripId, view.type);
+  const updateItem = useUpdateChecklistItem(tripId, view.type);
+  const deleteItem = useDeleteChecklistItem(tripId, view.type);
+
+  const trip = useMemo(() => trips?.find((item) => item._id === tripId), [trips, tripId]);
+  const rows = items ?? [];
+
+  const currentUserId = (user?._id ?? user?.id)?.toString();
+
+  // Map every member to a stable name + colour so shared-task assignees and the
+  // members card stay consistent.
+  const memberMap = useMemo(() => {
+    const map = new Map();
+    members?.forEach((member) => {
+      const u = member.userId;
+      const id = u?._id?.toString();
+      if (id) map.set(id, { name: firstName(u.fullName), color: colorFor(id) });
+    });
+    return map;
+  }, [members]);
+
+  const memberList = useMemo(
+    () =>
+      members?.map((member) => {
+        const id = member.userId?._id?.toString();
+        return { id, name: firstName(member.userId?.fullName), color: colorFor(id ?? "") };
+      }) ?? [],
+    [members],
+  );
+
+  const assigneeFor = (item) => {
+    const id = item.createdBy?.toString();
+    if (!id) return null;
+    return memberMap.get(id) ?? { name: "Member", color: colorFor(id) };
+  };
+
+  const completed = rows.filter((item) => item.completed).length;
+  const total = rows.length;
+
+  const handleToggle = (item) =>
+    updateItem.mutate({ itemId: item._id, data: { completed: !item.completed } });
+  const handleDelete = (item) => deleteItem.mutate(item._id);
+  const handleAdd = (text) => createItem.mutate(text);
+
+  const switchView = (key) => {
+    setActiveView(key);
+    setAdding(false);
+  };
+
+  if (tripsLoading && !trip) {
     return (
       <div className="space-y-5">
         <Skeleton className="h-8 w-36" />
@@ -323,11 +551,16 @@ export default function ChecklistsPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Button variant="ghost" size="sm" className="w-fit" onClick={() => navigate(tripId ? `/trips/${tripId}` : "/trips")}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-fit"
+          onClick={() => navigate(tripId ? `/trips/${tripId}` : "/trips")}
+        >
           <ArrowLeft className="size-4" />
           {trip?.title ?? "Trip"}
         </Button>
-        <ViewSwitcher activeView={activeView} onChange={setActiveView} />
+        <ViewSwitcher activeView={activeView} onChange={switchView} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -343,7 +576,10 @@ export default function ChecklistsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button className="border border-primary/20 shadow-sm shadow-primary/15">
+              <Button
+                className="border border-primary/20 shadow-sm shadow-primary/15"
+                onClick={() => setAdding(true)}
+              >
                 <Plus className="size-4" />
                 {view.action}
               </Button>
@@ -353,12 +589,32 @@ export default function ChecklistsPage() {
             </div>
           </div>
 
-          <ChecklistTable view={view} />
+          <ChecklistTable
+            view={view}
+            items={rows}
+            isLoading={itemsLoading}
+            assigneeFor={assigneeFor}
+            adding={adding}
+            setAdding={setAdding}
+            onAdd={handleAdd}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+            isAdding={createItem.isPending}
+          />
         </main>
 
         <aside className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
-          <ProgressCard view={view} />
-          {activeView === "packing" ? <NotesCard /> : <MembersCard />}
+          <ProgressCard view={view} completed={completed} total={total} />
+          {activeView === "packing" ? (
+            <NotesCard />
+          ) : (
+            <MembersCard
+              members={memberList}
+              currentUserId={currentUserId}
+              isLoading={membersLoading}
+              onViewAll={() => navigate(`/trips/${tripId}`, { state: { activeTab: "members" } })}
+            />
+          )}
         </aside>
       </div>
     </div>
