@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
   Check,
-  ClipboardList,
   MoreHorizontal,
   NotebookText,
   Plus,
   Trash2,
+  User,
   Users,
   X,
 } from "lucide-react";
@@ -39,18 +39,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 const MAX_ITEM_LENGTH = 50;
 
 const VIEWS = {
-  packing: {
+  personal: {
     type: "Packing",
-    title: "Packing List",
+    title: "Personal List",
     description: "Personal checklist - only visible to you",
-    icon: ClipboardList,
+    icon: User,
     action: "Add Item",
     addCopy: "Add new item",
-    placeholder: "Add a packing item…",
-    emptyCopy: "Nothing packed yet. Add your first item.",
+    placeholder: "Add a personal item…",
+    emptyCopy: "Nothing here yet. Add your first item.",
     progressTitle: "Your Progress",
-    progressSuffix: "Packed",
-    completeLabel: "Packed",
+    progressSuffix: "Done",
+    completeLabel: "Completed",
     pendingLabel: "Remaining",
     stroke: "stroke-primary",
     metricColor: "bg-primary",
@@ -447,42 +447,16 @@ function MembersCard({ members, currentUserId, isLoading, onViewAll }) {
   );
 }
 
-function ViewSwitcher({ activeView, onChange }) {
-  return (
-    <div className="grid grid-cols-2 gap-2 rounded-2xl border bg-card p-1 shadow-sm sm:w-fit">
-      {Object.entries(VIEWS).map(([key, view]) => {
-        const Icon = view.icon;
-        const active = activeView === key;
-
-        return (
-          <button
-            key={key}
-            onClick={() => onChange(key)}
-            className={cn(
-              "flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
-              active
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
-            <Icon className="size-4" />
-            {view.title}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 export default function ChecklistsPage() {
   const { tripId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [activeView, setActiveView] = useState("packing");
+  const [searchParams] = useSearchParams();
   const [adding, setAdding] = useState(false);
 
   useTripSocket(tripId);
 
+  const activeView = searchParams.get("type") === "shared" ? "shared" : "personal";
   const view = VIEWS[activeView];
   const Icon = view.icon;
 
@@ -534,11 +508,6 @@ export default function ChecklistsPage() {
   const handleDelete = (item) => deleteItem.mutate(item._id);
   const handleAdd = (text) => createItem.mutate(text);
 
-  const switchView = (key) => {
-    setActiveView(key);
-    setAdding(false);
-  };
-
   if (tripsLoading && !trip) {
     return (
       <div className="space-y-5">
@@ -560,7 +529,6 @@ export default function ChecklistsPage() {
           <ArrowLeft className="size-4" />
           {trip?.title ?? "Trip"}
         </Button>
-        <ViewSwitcher activeView={activeView} onChange={switchView} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -605,7 +573,7 @@ export default function ChecklistsPage() {
 
         <aside className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
           <ProgressCard view={view} completed={completed} total={total} />
-          {activeView === "packing" ? (
+          {activeView === "personal" ? (
             <NotesCard />
           ) : (
             <MembersCard

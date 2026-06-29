@@ -130,40 +130,6 @@
 }
 
 @layer utilities {
-  .app-decorated-page {
-    position: relative;
-    isolation: isolate;
-  }
-
-  .app-decorated-page::before {
-    content: "";
-    position: fixed;
-    inset: 3rem 0 0;
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0.07;
-    background:
-      radial-gradient(circle at 18% 12%, var(--primary) 0 11rem, transparent 18rem),
-      radial-gradient(circle at 82% 8%, var(--foreground) 0 9rem, transparent 16rem),
-      radial-gradient(circle at 72% 86%, var(--primary) 0 8rem, transparent 15rem);
-    filter: blur(28px);
-  }
-
-  .app-decorated-page::after {
-    content: "";
-    position: fixed;
-    inset: 3rem 0 0;
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0.05;
-    background-image:
-      linear-gradient(to right, currentColor 1px, transparent 1px),
-      linear-gradient(to bottom, currentColor 1px, transparent 1px),
-      radial-gradient(circle at 50% 50%, var(--primary) 0 1px, transparent 1px);
-    background-size: 48px 48px, 48px 48px, 12px 12px;
-    mask-image: linear-gradient(to bottom, black, transparent 72%);
-  }
-
   .decorative-surface {
     position: relative;
     isolation: isolate;
