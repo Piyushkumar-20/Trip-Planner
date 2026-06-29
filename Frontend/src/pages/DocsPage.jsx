@@ -202,6 +202,7 @@ export default function DocsPage() {
   const navigate = useNavigate();
   const [active, setActive] = useState("introduction");
   const contentRef = useRef(null);
+  const apiDocsUrl = `${(import.meta.env.VITE_API_URL || "").replace(/\/$/, "")}/api-docs`;
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -250,6 +251,9 @@ export default function DocsPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
           <button onClick={() => navigate("/")} className="tsl-nav-link" style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 14, fontFamily: "'Inter', sans-serif", display: "flex", alignItems: "center", gap: 6, transition: "color 0.15s" }}>
             <ArrowLeft size={14} /> Back to home
+          </button>
+          <button onClick={() => window.open(apiDocsUrl, "_blank", "noopener,noreferrer")} className="tsl-nav-link" style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 14, fontFamily: "'Inter', sans-serif", display: "flex", alignItems: "center", gap: 6, transition: "color 0.15s" }}>
+            <BookOpen size={14} /> API docs
           </button>
           <button onClick={() => navigate("/register")} style={{ background: C.orange, color: C.bg, border: "none", borderRadius: 999, padding: "8px 18px", fontSize: 13, fontWeight: 600, fontFamily: "'Inter', sans-serif", cursor: "pointer" }}>
             Get started
