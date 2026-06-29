@@ -10,7 +10,8 @@ import {
   User,
   UserPlus,
   Users,
-  CalendarDays
+  CalendarDays,
+  ListChecks
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTrips } from "@/hooks/useTrips";
@@ -153,6 +154,9 @@ export default function TripDetailsPage() {
         </Button>
 
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigate(`/trips/${tripId}/checklists`)}>
+            <ListChecks className="mr-1.5 h-3.5 w-3.5" /> Checklists
+          </Button>
           {canEditTrip && (
             <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
               <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edit Trip

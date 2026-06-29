@@ -12,6 +12,7 @@ import TripDetailsPage from "@/pages/TripDetailsPage"
 import DestinationActivitiesPage from "@/pages/DestinationActivitiesPage"
 import MembersPage from "@/pages/MembersPage"
 import SettingsPage from "@/pages/SettingsPage"
+import ChecklistsPage from "@/pages/ChecklistsPage"
 import MainLayout from "@/layouts/MainLayout"
 
 function ProtectedRoute({ children }) {
@@ -47,6 +48,7 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/trips" element={<TripsPage />} />
         <Route path="/trips/:tripId" element={<TripDetailsPage />} />
+        <Route path="/trips/:tripId/checklists" element={<ChecklistsPage />} />
         <Route path="/trips/:tripId/destinations/:destinationId/activities" element={<DestinationActivitiesPage />} />
         <Route path="/members" element={<MembersPage />} />
         <Route path="/settings" element={<SettingsPage />} />
